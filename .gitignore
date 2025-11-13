@@ -1,0 +1,25 @@
+# Node
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# Build outputs
+dist
+build
+
+# VSCode / OS
+.vscode
+.DS_Store
+Thumbs.db
+
+# VSCode local history / backups
+.history
+.vscode
