@@ -3,24 +3,22 @@ import { useAuth } from "../context/AuthContext";
 export default function Profile() {
   const { user, logout, loading } = useAuth();
 
-  if (loading) return <div className="p-6">Завантаження...</div>;
-  if (!user) return <div className="p-6">Ви не увійшли в систему.</div>;
+  if (loading) return <div className="card">Завантаження...</div>;
+  if (!user) return <div className="card">Ви не увійшли в систему.</div>;
 
   return (
-    <div className="max-w-md mx-auto p-6 space-y-3">
-      <h1 className="text-2xl font-bold mb-2">Профіль</h1>
-      <div>
-        <b>Імʼя:</b> {user.name}
+    <div className="card" style={{ maxWidth: 520, margin: "0 auto" }}>
+      <div className="stack">
+        <h1 className="title">Профіль</h1>
+        <div className="stack">
+          <div><strong>Імʼя:</strong> {user.name}</div>
+          <div><strong>Email:</strong> {user.email}</div>
+          <div><strong>Роль:</strong> {user.role}</div>
+        </div>
+        <button className="button button-ghost" onClick={logout}>
+          Вийти
+        </button>
       </div>
-      <div>
-        <b>Email:</b> {user.email}
-      </div>
-      <div>
-        <b>Роль:</b> {user.role}
-      </div>
-      <button className="mt-4 border px-4 py-2 rounded" onClick={logout}>
-        Вийти
-      </button>
     </div>
   );
 }

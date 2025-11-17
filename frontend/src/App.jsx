@@ -1,10 +1,12 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
 // сторінки
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
+import Courses from "./pages/Courses.jsx";
+import CourseDetails from "./pages/CourseDetails.jsx";
 
 // старі API
 import { getHealth, getDbCheck } from "./api";
@@ -25,29 +27,30 @@ function Home() {
   }, []);
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
-      <h1>Online Courses — MVP</h1>
-      <p>{status}</p>
-      <p>{dbStatus}</p>
+    <div className="card stack">
+      <h1 className="title">Online Courses — MVP</h1>
+      <p className="subtitle">{status}</p>
+      <p className="subtitle">{dbStatus}</p>
     </div>
   );
 }
 
 function NavBar() {
+  const location = useLocation();
   const { user, logout } = useAuth();
 
   return (
-    <nav
-      style={{
-        padding: "10px 20px",
-        borderBottom: "1px solid #ddd",
-        marginBottom: 20,
-        display: "flex",
-        gap: 20,
-        fontSize: 18
-      }}
-    >
-      <Link to="/">Головна</Link>
+    <nav className="navbar">
+      <Link to="/" className={location.pathname === "/" ? "active" : ""}>
+        Головна
+      </Link>
+      <Link
+        to="/courses"
+        className={location.pathname.startsWith("/courses") ? "active" : ""}
+      >
+        Курси
+      </Link>
+      <div className="navbar-spacer" />
 
       {!user && (
         <>
@@ -59,16 +62,7 @@ function NavBar() {
       {user && (
         <>
           <Link to="/profile">Профіль</Link>
-          <button
-            onClick={logout}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "red",
-              cursor: "pointer",
-              fontSize: 16
-            }}
-          >
+          <button className="button button-ghost" onClick={logout}>
             Вийти
           </button>
         </>
@@ -82,12 +76,16 @@ export default function App() {
     <BrowserRouter>
       <NavBar />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
+      <div className="page">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/courses/:id" element={<CourseDetails />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }

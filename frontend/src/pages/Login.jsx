@@ -18,28 +18,38 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-sm mx-auto p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Вхід</h1>
-      {err && <div className="text-red-600 text-sm">{err}</div>}
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          className="border rounded w-full p-2"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="border rounded w-full p-2"
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
-          Увійти
-        </button>
-      </form>
+    <div className="card" style={{ maxWidth: 420, margin: "0 auto" }}>
+      <div className="stack">
+        <h1 className="title">Вхід</h1>
+        {err && <div className="alert">{err}</div>}
+        <form className="stack" onSubmit={handleSubmit}>
+          <div className="stack">
+            <label className="label">Email</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="email@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="stack">
+            <label className="label">Пароль</label>
+            <input
+              className="input"
+              type="password"
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button className="button" style={{ width: "100%" }}>
+            Увійти
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

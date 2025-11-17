@@ -19,34 +19,48 @@ export default function Register() {
   }
 
   return (
-    <div className="max-w-sm mx-auto p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Реєстрація</h1>
-      {err && <div className="text-red-600 text-sm">{err}</div>}
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          className="border rounded w-full p-2"
-          placeholder="Ім'я"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          className="border rounded w-full p-2"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="border rounded w-full p-2"
-          type="password"
-          placeholder="Пароль (мін. 8 символів)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button className="bg-green-600 text-white px-4 py-2 rounded w-full">
-          Створити акаунт
-        </button>
-      </form>
+    <div className="card" style={{ maxWidth: 420, margin: "0 auto" }}>
+      <div className="stack">
+        <h1 className="title">Реєстрація</h1>
+        {err && <div className="alert">{err}</div>}
+        <form className="stack" onSubmit={handleSubmit}>
+          <div className="stack">
+            <label className="label">Ім'я</label>
+            <input
+              className="input"
+              placeholder="Ваше ім'я"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="stack">
+            <label className="label">Email</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="email@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="stack">
+            <label className="label">Пароль (мін. 8 символів)</label>
+            <input
+              className="input"
+              type="password"
+              placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button className="button" style={{ width: "100%" }}>
+            Створити акаунт
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
