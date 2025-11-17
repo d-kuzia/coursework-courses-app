@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import pool from "./db.js";
 import authRoutes from "./routes/auth.js";
+import courseRoutes from "./routes/courses.js";
 
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ app.get("/api/dbcheck", async (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/courses", courseRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
