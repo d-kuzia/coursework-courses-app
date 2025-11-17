@@ -23,7 +23,6 @@ export default function CourseDetails() {
     (user?.role === "TEACHER" && course && course.teacher_id === user.id);
 
   useEffect(() => {
-    setLoading(true);
     getCourse(id)
       .then((data) => setCourse(data.course))
       .catch((err) => setError(err.message || "Не вдалося завантажити"))

@@ -18,7 +18,6 @@ export default function Courses() {
   const canEdit = user?.role === "ADMIN" || user?.role === "TEACHER";
 
   useEffect(() => {
-    setLoading(true);
     getCourses()
       .then((data) => setCourses(data.courses || []))
       .catch((err) => setError(err.message || "Не вдалося завантажити"))
