@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuth } from "./context/AuthContext";
 
 // сторінки
@@ -7,10 +8,10 @@ import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
 import Courses from "./pages/Courses.jsx";
 import CourseDetails from "./pages/CourseDetails.jsx";
+import Lesson from "./pages/Lesson.jsx";
 
 // старі API
 import { getHealth, getDbCheck } from "./api";
-import { useEffect, useState } from "react";
 
 function Home() {
   const [status, setStatus] = useState("loading...");
@@ -84,6 +85,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
+          <Route path="/lessons/:id" element={<Lesson />} />
         </Routes>
       </div>
     </BrowserRouter>

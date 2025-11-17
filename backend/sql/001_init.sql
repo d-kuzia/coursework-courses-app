@@ -37,3 +37,62 @@ drop trigger if exists trg_courses_updated_at on courses;
 create trigger trg_courses_updated_at
 before update on courses
 for each row execute function set_updated_at();
+
+-- modules
+create table if not exists modules (
+  id uuid primary key default gen_random_uuid(),
+  course_id uuid not null references courses(id) on delete cascade,
+  title varchar(255) not null,
+  position int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+drop trigger if exists trg_modules_updated_at on modules;
+create trigger trg_modules_updated_at
+before update on modules
+for each row execute function set_updated_at();
+
+-- lessons
+create table if not exists lessons (
+  id uuid primary key default gen_random_uuid(),
+  module_id uuid not null references modules(id) on delete cascade,
+  title varchar(255) not null,
+  content text,
+  video_url text,
+  position int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+drop trigger if exists trg_lessons_updated_at on lessons;
+create trigger trg_lessons_updated_at
+before update on lessons
+for each row execute function set_updated_at();
+
+-- quizzes
+create table if not exists lesson_quizzes (
+  id uuid primary key default gen_random_uuid(),
+  lesson_id uuid not null unique references lessons(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+drop trigger if exists trg_lesson_quizzes_updated_at on lesson_quizzes;
+create trigger trg_lesson_quizzes_updated_at
+before update on lesson_quizzes
+for each row execute function set_updated_at();
+
+create table if not exists quiz_questions (
+  id uuid primary key default gen_random_uuid(),
+  quiz_id uuid not null references lesson_quizzes(id) on delete cascade,
+  text text not null,
+  position int not null default 0
+);
+
+create table if not exists quiz_options (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid not null references quiz_questions(id) on delete cascade,
+  text text not null,
+  is_correct boolean not null default false
+);

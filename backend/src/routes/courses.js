@@ -29,7 +29,12 @@ router.get("/", async (_req, res) => {
               c.teacher_id,
               c.created_at,
               c.updated_at,
-              u.name as teacher_name
+              u.name as teacher_name,
+              (select count(*) from modules m where m.course_id = c.id) as module_count,
+              (select count(*)
+               from lessons l
+               join modules m on m.id = l.module_id
+               where m.course_id = c.id) as lesson_count
        from courses c
        left join users u on u.id = c.teacher_id
        order by c.created_at desc`
@@ -51,7 +56,12 @@ router.get("/:id", async (req, res) => {
               c.teacher_id,
               c.created_at,
               c.updated_at,
-              u.name as teacher_name
+              u.name as teacher_name,
+              (select count(*) from modules m where m.course_id = c.id) as module_count,
+              (select count(*)
+               from lessons l
+               join modules m on m.id = l.module_id
+               where m.course_id = c.id) as lesson_count
        from courses c
        left join users u on u.id = c.teacher_id
        where c.id = $1`,
@@ -60,7 +70,37 @@ router.get("/:id", async (req, res) => {
     if (!result.rowCount) {
       return res.status(404).json({ message: "Not found" });
     }
-    res.json({ course: result.rows[0] });
+    const modulesRes = await query(
+      `select id, course_id, title, position, created_at, updated_at
+       from modules
+       where course_id = $1
+       order by position asc, created_at asc`,
+      [req.params.id]
+    );
+    const lessonsRes = await query(
+      `select l.id,
+              l.module_id,
+              l.title,
+              l.position,
+              l.created_at,
+              l.updated_at
+       from lessons l
+       join modules m on m.id = l.module_id
+       where m.course_id = $1
+       order by l.position asc, l.created_at asc`,
+      [req.params.id]
+    );
+
+    const modules = modulesRes.rows.map((m) => ({ ...m, lessons: [] }));
+    const moduleMap = new Map(modules.map((m) => [m.id, m]));
+    for (const lesson of lessonsRes.rows) {
+      const mod = moduleMap.get(lesson.module_id);
+      if (mod) {
+        mod.lessons.push(lesson);
+      }
+    }
+
+    res.json({ course: { ...result.rows[0], modules } });
   } catch (err) {
     console.error("course detail error", err);
     res.status(500).json({ message: "Server error" });

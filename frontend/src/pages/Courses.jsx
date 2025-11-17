@@ -55,9 +55,7 @@ export default function Courses() {
       {error && <div className="alert">{error}</div>}
       {loading && <div className="card">Завантаження...</div>}
 
-      {showCreate && (
-        <CourseForm submitLabel="Створити" onSubmit={handleCreate} />
-      )}
+      {showCreate && <CourseForm submitLabel="Створити" onSubmit={handleCreate} />}
 
       <div className="grid-courses">
         {courses.map((course) => (
@@ -71,6 +69,9 @@ export default function Courses() {
               </p>
               <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
                 Викладач: {course.teacher_name || "—"}
+              </p>
+              <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
+                Модулі: {course.module_count ?? 0} · Уроки: {course.lesson_count ?? 0}
               </p>
             </div>
             {canEdit && (
