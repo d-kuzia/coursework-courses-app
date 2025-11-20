@@ -7,6 +7,7 @@ import courseRoutes from "./routes/courses.js";
 import moduleRoutes from "./routes/modules.js";
 import lessonRoutes from "./routes/lessons.js";
 import quizRoutes from "./routes/quizzes.js";
+import enrollmentRoutes from "./routes/enrollments.js";
 
 dotenv.config();
 const app = express();
@@ -34,6 +35,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api", moduleRoutes);
 app.use("/api", lessonRoutes);
 app.use("/api", quizRoutes);
+app.use("/api", enrollmentRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));

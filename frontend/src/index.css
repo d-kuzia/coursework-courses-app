@@ -205,6 +205,12 @@ a {
   border: 1px solid #fecdd3;
 }
 
+.alert.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
 .text-center {
   text-align: center;
 }

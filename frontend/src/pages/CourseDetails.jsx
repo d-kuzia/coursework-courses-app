@@ -8,6 +8,7 @@ import {
 } from "../api/courses";
 import { createModule } from "../api/modules";
 import { createLesson } from "../api/lessons";
+import { enrollInCourse, getMyCourses } from "../api/enrollments";
 import CourseForm from "./CourseForm";
 
 export default function CourseDetails() {
@@ -26,13 +27,40 @@ export default function CourseDetails() {
 
   const [lessonDrafts, setLessonDrafts] = useState({});
 
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrollLoading, setEnrollLoading] = useState(false);
+  const [enrollError, setEnrollError] = useState("");
+
   useEffect(() => {
     setLoading(true);
     getCourse(id)
       .then((data) => setCourse(data.course))
-      .catch((err) => setError(err.message || "Не вдалося завантажити"))
+      .catch((err) => setError(err.message || "Не вдалося завантажити курс"))
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!user || user.role !== "USER") {
+      setIsEnrolled(false);
+      return;
+    }
+    let cancelled = false;
+    getMyCourses()
+      .then((data) => {
+        if (!cancelled) {
+          const enrolled =
+            data.courses?.some((item) => item.course_id === id) ?? false;
+          setIsEnrolled(enrolled);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsEnrolled(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, id]);
 
   const canEdit =
     user?.role === "ADMIN" ||
@@ -110,6 +138,19 @@ export default function CourseDetails() {
     }
   }
 
+  async function handleEnroll() {
+    setEnrollError("");
+    setEnrollLoading(true);
+    try {
+      await enrollInCourse(id);
+      setIsEnrolled(true);
+    } catch (err) {
+      setEnrollError(err.message || "Не вдалося записатися на курс");
+    } finally {
+      setEnrollLoading(false);
+    }
+  }
+
   if (loading) return <div className="card">Завантаження...</div>;
   if (error) return <div className="card alert">{error}</div>;
   if (!course) return <div className="card">Не знайдено</div>;
@@ -138,10 +179,27 @@ export default function CourseDetails() {
         <p className="subtitle" style={{ marginTop: 12, whiteSpace: "pre-line" }}>
           {course.description || "Без опису"}
         </p>
+
+        {user && user.role === "USER" && (
+          <div className="stack" style={{ marginTop: 16 }}>
+            {isEnrolled ? (
+              <div className="pill">Ви вже записані на цей курс</div>
+            ) : (
+              <button className="button" onClick={handleEnroll} disabled={enrollLoading}>
+                {enrollLoading ? "Запис..." : "Записатися на курс"}
+              </button>
+            )}
+            {enrollError && <div className="alert">{enrollError}</div>}
+          </div>
+        )}
       </div>
 
       {editing && (
-        <CourseForm initialData={course} submitLabel="Оновити" onSubmit={handleUpdate} />
+        <CourseForm
+          initialData={course}
+          submitLabel="Оновити"
+          onSubmit={handleUpdate}
+        />
       )}
 
       <div className="card stack">

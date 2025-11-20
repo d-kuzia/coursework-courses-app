@@ -96,3 +96,28 @@ create table if not exists quiz_options (
   text text not null,
   is_correct boolean not null default false
 );
+
+-- enrollments
+create table if not exists enrollments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references users(id) on delete cascade,
+  course_id uuid not null references courses(id) on delete cascade,
+  status text not null default 'ENROLLED',
+  progress int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, course_id)
+);
+
+drop trigger if exists trg_enrollments_updated_at on enrollments;
+create trigger trg_enrollments_updated_at
+before update on enrollments
+for each row execute function set_updated_at();
+
+create table if not exists lesson_progress (
+  id uuid primary key default gen_random_uuid(),
+  enrollment_id uuid not null references enrollments(id) on delete cascade,
+  lesson_id uuid not null references lessons(id) on delete cascade,
+  completed_at timestamptz not null default now(),
+  unique (enrollment_id, lesson_id)
+);

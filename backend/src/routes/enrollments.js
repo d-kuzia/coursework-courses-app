@@ -1,0 +1,78 @@
+import express from "express";
+import { query } from "../db.js";
+import auth from "../middleware/auth.js";
+
+const router = express.Router();
+
+function isStudent(user) {
+  return user.role === "USER";
+}
+
+// POST /api/courses/:id/enroll
+router.post("/courses/:id/enroll", auth, async (req, res) => {
+  if (!isStudent(req.user)) {
+    return res.status(403).json({ message: "Доступ лише для студентів" });
+  }
+
+  try {
+    const courseId = req.params.id;
+    const course = await query("select id from courses where id = $1", [courseId]);
+    if (!course.rowCount) {
+      return res.status(404).json({ message: "Курс не знайдено" });
+    }
+
+    const existing = await query(
+      "select * from enrollments where user_id = $1 and course_id = $2",
+      [req.user.id, courseId]
+    );
+    if (existing.rowCount) {
+      return res.json({ enrollment: existing.rows[0], alreadyEnrolled: true });
+    }
+
+    const result = await query(
+      `insert into enrollments (user_id, course_id)
+       values ($1, $2)
+       returning *`,
+      [req.user.id, courseId]
+    );
+    res.status(201).json({ enrollment: result.rows[0], alreadyEnrolled: false });
+  } catch (err) {
+    console.error("enroll error", err);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+});
+
+// GET /api/my-courses
+router.get("/my-courses", auth, async (req, res) => {
+  try {
+    const result = await query(
+      `select e.id as enrollment_id,
+              e.status,
+              e.progress,
+              e.created_at,
+              e.updated_at,
+              c.id as course_id,
+              c.title,
+              c.description,
+              c.teacher_id,
+              u.name as teacher_name,
+              (select count(*) from modules m where m.course_id = c.id) as module_count,
+              (select count(*)
+               from lessons l
+               join modules m on m.id = l.module_id
+               where m.course_id = c.id) as lesson_count
+       from enrollments e
+       join courses c on c.id = e.course_id
+       left join users u on u.id = c.teacher_id
+       where e.user_id = $1
+       order by e.created_at desc`,
+      [req.user.id]
+    );
+    res.json({ courses: result.rows });
+  } catch (err) {
+    console.error("my courses error", err);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+});
+
+export default router;

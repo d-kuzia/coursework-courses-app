@@ -9,6 +9,7 @@ import Profile from "./pages/Profile.jsx";
 import Courses from "./pages/Courses.jsx";
 import CourseDetails from "./pages/CourseDetails.jsx";
 import Lesson from "./pages/Lesson.jsx";
+import MyCourses from "./pages/MyCourses.jsx";
 
 // старі API
 import { getHealth, getDbCheck } from "./api";
@@ -51,6 +52,14 @@ function NavBar() {
       >
         Курси
       </Link>
+      {user && (
+        <Link
+          to="/my-courses"
+          className={location.pathname.startsWith("/my-courses") ? "active" : ""}
+        >
+          Мої курси
+        </Link>
+      )}
       <div className="navbar-spacer" />
 
       {!user && (
@@ -86,6 +95,7 @@ export default function App() {
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:id" element={<CourseDetails />} />
           <Route path="/lessons/:id" element={<Lesson />} />
+          <Route path="/my-courses" element={<MyCourses />} />
         </Routes>
       </div>
     </BrowserRouter>
