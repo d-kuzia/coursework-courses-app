@@ -4,21 +4,17 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-function isStudent(user) {
-  return user.role === "USER";
-}
-
 // POST /api/courses/:id/enroll
 router.post("/courses/:id/enroll", auth, async (req, res) => {
-  if (!isStudent(req.user)) {
-    return res.status(403).json({ message: "Доступ лише для студентів" });
-  }
-
   try {
     const courseId = req.params.id;
-    const course = await query("select id from courses where id = $1", [courseId]);
+    const course = await query("select id, teacher_id from courses where id = $1", [courseId]);
     if (!course.rowCount) {
       return res.status(404).json({ message: "Курс не знайдено" });
+    }
+
+    if (course.rows[0].teacher_id && course.rows[0].teacher_id === req.user.id) {
+      return res.status(403).json({ message: "Ви викладаєте цей курс" });
     }
 
     const existing = await query(

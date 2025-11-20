@@ -8,7 +8,11 @@ import {
 } from "../api/courses";
 import { createModule } from "../api/modules";
 import { createLesson } from "../api/lessons";
-import { enrollInCourse, getMyCourses } from "../api/enrollments";
+import {
+  enrollInCourse,
+  getMyCourses,
+  getCourseEnrollments
+} from "../api/enrollments";
 import CourseForm from "./CourseForm";
 
 export default function CourseDetails() {
@@ -20,6 +24,7 @@ export default function CourseDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState("modules");
 
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleError, setModuleError] = useState("");
@@ -31,16 +36,20 @@ export default function CourseDetails() {
   const [enrollLoading, setEnrollLoading] = useState(false);
   const [enrollError, setEnrollError] = useState("");
 
+  const [enrollments, setEnrollments] = useState([]);
+  const [enrollmentsLoading, setEnrollmentsLoading] = useState(false);
+  const [enrollmentsError, setEnrollmentsError] = useState("");
+
   useEffect(() => {
     setLoading(true);
     getCourse(id)
       .then((data) => setCourse(data.course))
-      .catch((err) => setError(err.message || "Не вдалося завантажити курс"))
+      .catch((err) => setError(err.message || "Не вдалося завантажити"))
       .finally(() => setLoading(false));
   }, [id]);
 
   useEffect(() => {
-    if (!user || user.role !== "USER") {
+    if (!user) {
       setIsEnrolled(false);
       return;
     }
@@ -56,15 +65,15 @@ export default function CourseDetails() {
       .catch(() => {
         if (!cancelled) setIsEnrolled(false);
       });
-
     return () => {
       cancelled = true;
     };
   }, [user, id]);
 
+  const isOwner = user && course && course.teacher_id === user.id;
   const canEdit =
-    user?.role === "ADMIN" ||
-    (user?.role === "TEACHER" && course && course.teacher_id === user.id);
+    user?.role === "ADMIN" || (user?.role === "TEACHER" && isOwner);
+  const canViewEnrollments = canEdit;
 
   async function handleUpdate(dto) {
     const updated = await updateCourse(id, dto);
@@ -145,11 +154,31 @@ export default function CourseDetails() {
       await enrollInCourse(id);
       setIsEnrolled(true);
     } catch (err) {
-      setEnrollError(err.message || "Не вдалося записатися на курс");
+      setEnrollError(err.message || "Не вдалося записатися");
     } finally {
       setEnrollLoading(false);
     }
   }
+
+  async function loadEnrollments() {
+    if (!canViewEnrollments) return;
+    setEnrollmentsLoading(true);
+    setEnrollmentsError("");
+    try {
+      const data = await getCourseEnrollments(id);
+      setEnrollments(data.enrollments || []);
+    } catch (err) {
+      setEnrollmentsError(err.message || "Не вдалося завантажити список студентів");
+    } finally {
+      setEnrollmentsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === "students") {
+      loadEnrollments();
+    }
+  }, [activeTab, canViewEnrollments]);
 
   if (loading) return <div className="card">Завантаження...</div>;
   if (error) return <div className="card alert">{error}</div>;
@@ -180,11 +209,13 @@ export default function CourseDetails() {
           {course.description || "Без опису"}
         </p>
 
-        {user && user.role === "USER" && (
+        {user && (
           <div className="stack" style={{ marginTop: 16 }}>
-            {isEnrolled ? (
+            {isOwner && <div className="pill">Ви викладаєте цей курс</div>}
+            {!isOwner && isEnrolled && (
               <div className="pill">Ви вже записані на цей курс</div>
-            ) : (
+            )}
+            {!isOwner && !isEnrolled && (
               <button className="button" onClick={handleEnroll} disabled={enrollLoading}>
                 {enrollLoading ? "Запис..." : "Записатися на курс"}
               </button>
@@ -192,111 +223,168 @@ export default function CourseDetails() {
             {enrollError && <div className="alert">{enrollError}</div>}
           </div>
         )}
+
+        {canViewEnrollments && (
+          <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+            <button
+              className={`button button-ghost${activeTab === "modules" ? " active" : ""}`}
+              onClick={() => setActiveTab("modules")}
+            >
+              Структура
+            </button>
+            <button
+              className={`button button-ghost${activeTab === "students" ? " active" : ""}`}
+              onClick={() => setActiveTab("students")}
+            >
+              Записані студенти
+            </button>
+          </div>
+        )}
+
+        {activeTab === "students" && canViewEnrollments && (
+          <div className="card stack" style={{ marginTop: 16 }}>
+            <h2 className="title" style={{ fontSize: 20 }}>
+              Студенти
+            </h2>
+            {enrollmentsLoading && <div>Завантаження...</div>}
+            {enrollmentsError && <div className="alert">{enrollmentsError}</div>}
+            {!enrollmentsLoading && !enrollments.length && (
+              <div className="muted">Немає записів.</div>
+            )}
+            {enrollments.map((enrollment) => (
+              <div key={enrollment.id} className="card stack">
+                <div className="title" style={{ fontSize: 16 }}>
+                  {enrollment.name} ({enrollment.email})
+                </div>
+                <div className="muted" style={{ fontSize: 13 }}>
+                  Роль: {enrollment.role} · Статус: {enrollment.status}
+                </div>
+                <div className="muted" style={{ fontSize: 13 }}>
+                  Прогрес: {enrollment.progress}%
+                </div>
+                <div
+                  style={{
+                    height: 6,
+                    borderRadius: 999,
+                    background: "#e5e7eb",
+                    overflow: "hidden"
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${Math.min(Math.max(enrollment.progress, 0), 100)}%`,
+                      background: "#2563eb",
+                      height: "100%"
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {editing && (
-        <CourseForm
-          initialData={course}
-          submitLabel="Оновити"
-          onSubmit={handleUpdate}
-        />
+        <CourseForm initialData={course} submitLabel="Оновити" onSubmit={handleUpdate} />
       )}
 
-      <div className="card stack">
-        <div className="flex-between">
-          <h2 className="title" style={{ fontSize: 20 }}>
-            Модулі
-          </h2>
-          {canEdit && (
-            <form style={{ display: "flex", gap: 8 }} onSubmit={handleCreateModule}>
-              <input
-                className="input"
-                placeholder="Назва модуля"
-                value={moduleTitle}
-                onChange={(e) => setModuleTitle(e.target.value)}
-                required
-              />
-              <button className="button" disabled={moduleLoading}>
-                {moduleLoading ? "Створення..." : "Додати"}
-              </button>
-            </form>
-          )}
-        </div>
-        {moduleError && <div className="alert">{moduleError}</div>}
+      {activeTab === "modules" && (
+        <div className="card stack">
+          <div className="flex-between">
+            <h2 className="title" style={{ fontSize: 20 }}>
+              Модулі
+            </h2>
+            {canEdit && (
+              <form style={{ display: "flex", gap: 8 }} onSubmit={handleCreateModule}>
+                <input
+                  className="input"
+                  placeholder="Назва модуля"
+                  value={moduleTitle}
+                  onChange={(e) => setModuleTitle(e.target.value)}
+                  required
+                />
+                <button className="button" disabled={moduleLoading}>
+                  {moduleLoading ? "Створення..." : "Додати"}
+                </button>
+              </form>
+            )}
+          </div>
+          {moduleError && <div className="alert">{moduleError}</div>}
 
-        <div className="stack">
-          {(course.modules || []).map((module) => {
-            const draft = lessonDrafts[module.id] || {};
-            return (
-              <div key={module.id} className="card stack">
-                <div className="flex-between">
-                  <div>
-                    <h3 className="title" style={{ fontSize: 18 }}>
-                      {module.title}
-                    </h3>
-                    <p className="muted" style={{ fontSize: 13 }}>
-                      Уроків: {module.lessons?.length || 0}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="stack">
-                  {(module.lessons || []).map((lesson) => (
-                    <Link key={lesson.id} to={`/lessons/${lesson.id}`} className="card stack">
-                      <div className="title" style={{ fontSize: 16 }}>
-                        {lesson.title}
-                      </div>
-                      <div className="muted" style={{ fontSize: 13 }}>
-                        Порядок: {lesson.position ?? 0}
-                      </div>
-                    </Link>
-                  ))}
-                  {!module.lessons?.length && (
-                    <div className="muted" style={{ fontSize: 14 }}>
-                      Уроків ще нема.
+          <div className="stack">
+            {(course.modules || []).map((module) => {
+              const draft = lessonDrafts[module.id] || {};
+              return (
+                <div key={module.id} className="card stack">
+                  <div className="flex-between">
+                    <div>
+                      <h3 className="title" style={{ fontSize: 18 }}>
+                        {module.title}
+                      </h3>
+                      <p className="muted" style={{ fontSize: 13 }}>
+                        Уроків: {module.lessons?.length || 0}
+                      </p>
                     </div>
+                  </div>
+
+                  <div className="stack">
+                    {(module.lessons || []).map((lesson) => (
+                      <Link key={lesson.id} to={`/lessons/${lesson.id}`} className="card stack">
+                        <div className="title" style={{ fontSize: 16 }}>
+                          {lesson.title}
+                        </div>
+                        <div className="muted" style={{ fontSize: 13 }}>
+                          Порядок: {lesson.position ?? 0}
+                        </div>
+                      </Link>
+                    ))}
+                    {!module.lessons?.length && (
+                      <div className="muted" style={{ fontSize: 14 }}>
+                        Уроків ще нема.
+                      </div>
+                    )}
+                  </div>
+
+                  {canEdit && (
+                    <form className="stack" onSubmit={(e) => handleCreateLesson(e, module.id)}>
+                      {draft.error && <div className="alert">{draft.error}</div>}
+                      <input
+                        className="input"
+                        placeholder="Назва уроку"
+                        value={draft.title || ""}
+                        onChange={(e) => updateLessonDraft(module.id, "title", e.target.value)}
+                        required
+                      />
+                      <input
+                        className="input"
+                        placeholder="YouTube URL (необов'язково)"
+                        value={draft.videoUrl || ""}
+                        onChange={(e) => updateLessonDraft(module.id, "videoUrl", e.target.value)}
+                      />
+                      <textarea
+                        className="input textarea"
+                        rows={3}
+                        placeholder="Опис уроку"
+                        value={draft.content || ""}
+                        onChange={(e) => updateLessonDraft(module.id, "content", e.target.value)}
+                      />
+                      <button className="button" disabled={draft.loading}>
+                        {draft.loading ? "Збереження..." : "Додати урок"}
+                      </button>
+                    </form>
                   )}
                 </div>
+              );
+            })}
 
-                {canEdit && (
-                  <form className="stack" onSubmit={(e) => handleCreateLesson(e, module.id)}>
-                    {draft.error && <div className="alert">{draft.error}</div>}
-                    <input
-                      className="input"
-                      placeholder="Назва уроку"
-                      value={draft.title || ""}
-                      onChange={(e) => updateLessonDraft(module.id, "title", e.target.value)}
-                      required
-                    />
-                    <input
-                      className="input"
-                      placeholder="YouTube URL (необов'язково)"
-                      value={draft.videoUrl || ""}
-                      onChange={(e) => updateLessonDraft(module.id, "videoUrl", e.target.value)}
-                    />
-                    <textarea
-                      className="input textarea"
-                      rows={3}
-                      placeholder="Опис уроку"
-                      value={draft.content || ""}
-                      onChange={(e) => updateLessonDraft(module.id, "content", e.target.value)}
-                    />
-                    <button className="button" disabled={draft.loading}>
-                      {draft.loading ? "Збереження..." : "Додати урок"}
-                    </button>
-                  </form>
-                )}
+            {!course.modules?.length && (
+              <div className="muted" style={{ fontSize: 14 }}>
+                Модулів ще нема.
               </div>
-            );
-          })}
-
-          {!course.modules?.length && (
-            <div className="muted" style={{ fontSize: 14 }}>
-              Модулів ще нема.
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

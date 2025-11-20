@@ -6,3 +6,7 @@ export const enrollInCourse = (courseId) =>
   });
 
 export const getMyCourses = () => api("/api/my-courses");
+
+export const getCourseEnrollments = (courseId) =>
+  api(`/api/courses/${courseId}/enrollments`);
+

@@ -119,7 +119,7 @@ router.get("/lessons/:id", async (req, res) => {
     }
     const lesson = result.rows[0];
 
-    if (requester && requester.role === "USER") {
+    if (requester) {
       markLessonCompleted(requester.id, lesson.id).catch((err) =>
         console.error("mark lesson complete error", err)
       );

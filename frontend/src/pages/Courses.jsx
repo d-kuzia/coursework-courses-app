@@ -15,7 +15,7 @@ export default function Courses() {
   const [error, setError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
 
-  const canEdit = user?.role === "ADMIN" || user?.role === "TEACHER";
+  const canCreateCourse = user?.role === "ADMIN" || user?.role === "TEACHER";
 
   useEffect(() => {
     getCourses()
@@ -45,7 +45,7 @@ export default function Courses() {
           </h1>
           <p className="subtitle">Список доступних курсів</p>
         </div>
-        {canEdit && (
+        {canCreateCourse && (
           <button className="button" onClick={() => setShowCreate((v) => !v)}>
             {showCreate ? "Скасувати" : "Створити курс"}
           </button>
@@ -58,34 +58,40 @@ export default function Courses() {
       {showCreate && <CourseForm submitLabel="Створити" onSubmit={handleCreate} />}
 
       <div className="grid-courses">
-        {courses.map((course) => (
-          <div key={course.id} className="card course-card">
-            <div>
-              <Link to={`/courses/${course.id}`} className="title" style={{ fontSize: 18 }}>
-                {course.title}
-              </Link>
-              <p className="muted" style={{ marginTop: 6 }}>
-                {course.description || "Без опису"}
-              </p>
-              <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                Викладач: {course.teacher_name || "—"}
-              </p>
-              <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                Модулі: {course.module_count ?? 0} · Уроки: {course.lesson_count ?? 0}
-              </p>
-            </div>
-            {canEdit && (
-              <div className="course-actions">
-                <Link to={`/courses/${course.id}`} className="button button-ghost">
-                  Редагувати
+        {courses.map((course) => {
+          const canEditCourse =
+            user?.role === "ADMIN" ||
+            (user?.role === "TEACHER" && course.teacher_id === user.id);
+
+          return (
+            <div key={course.id} className="card course-card">
+              <div>
+                <Link to={`/courses/${course.id}`} className="title" style={{ fontSize: 18 }}>
+                  {course.title}
                 </Link>
-                <button className="button button-danger" onClick={() => handleDelete(course.id)}>
-                  Видалити
-                </button>
+                <p className="muted" style={{ marginTop: 6 }}>
+                  {course.description || "Без опису"}
+                </p>
+                <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
+                  Викладач: {course.teacher_name || "—"}
+                </p>
+                <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
+                  Модулі: {course.module_count ?? 0} · Уроки: {course.lesson_count ?? 0}
+                </p>
               </div>
-            )}
-          </div>
-        ))}
+              {canEditCourse && (
+                <div className="course-actions">
+                  <Link to={`/courses/${course.id}`} className="button button-ghost">
+                    Редагувати
+                  </Link>
+                  <button className="button button-danger" onClick={() => handleDelete(course.id)}>
+                    Видалити
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
         {!loading && !courses.length && (
           <div className="card text-center muted">Немає курсів.</div>
         )}

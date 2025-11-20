@@ -8,6 +8,7 @@ import moduleRoutes from "./routes/modules.js";
 import lessonRoutes from "./routes/lessons.js";
 import quizRoutes from "./routes/quizzes.js";
 import enrollmentRoutes from "./routes/enrollments.js";
+import enrollmentAdminRoutes from "./routes/enrollments_admin.js";
 import userRoutes from "./routes/users.js";
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use("/api", moduleRoutes);
 app.use("/api", lessonRoutes);
 app.use("/api", quizRoutes);
 app.use("/api", enrollmentRoutes);
+app.use("/api", enrollmentAdminRoutes);
 app.use("/api", userRoutes);
 
 const PORT = process.env.PORT || 5000;
