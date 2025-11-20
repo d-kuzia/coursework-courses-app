@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -160,25 +160,24 @@ export default function CourseDetails() {
     }
   }
 
-  async function loadEnrollments() {
+  const loadEnrollments = useCallback(() => {
     if (!canViewEnrollments) return;
+
     setEnrollmentsLoading(true);
     setEnrollmentsError("");
-    try {
-      const data = await getCourseEnrollments(id);
-      setEnrollments(data.enrollments || []);
-    } catch (err) {
-      setEnrollmentsError(err.message || "Не вдалося завантажити список студентів");
-    } finally {
-      setEnrollmentsLoading(false);
-    }
-  }
+    getCourseEnrollments(id)
+      .then((data) => setEnrollments(data.enrollments || []))
+      .catch((err) =>
+        setEnrollmentsError(err.message || "Не вдалося завантажити список студентів")
+      )
+      .finally(() => setEnrollmentsLoading(false));
+  }, [canViewEnrollments, id]);
 
   useEffect(() => {
     if (activeTab === "students") {
       loadEnrollments();
     }
-  }, [activeTab, canViewEnrollments]);
+  }, [activeTab, loadEnrollments]);
 
   if (loading) return <div className="card">Завантаження...</div>;
   if (error) return <div className="card alert">{error}</div>;
