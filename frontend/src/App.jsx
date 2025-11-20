@@ -10,6 +10,7 @@ import Courses from "./pages/Courses.jsx";
 import CourseDetails from "./pages/CourseDetails.jsx";
 import Lesson from "./pages/Lesson.jsx";
 import MyCourses from "./pages/MyCourses.jsx";
+import AdminPanel from "./pages/AdminPanel.jsx";
 
 // старі API
 import { getHealth, getDbCheck } from "./api";
@@ -60,6 +61,14 @@ function NavBar() {
           Мої курси
         </Link>
       )}
+      {user?.role === "ADMIN" && (
+        <Link
+          to="/admin"
+          className={location.pathname.startsWith("/admin") ? "active" : ""}
+        >
+          Admin Panel
+        </Link>
+      )}
       <div className="navbar-spacer" />
 
       {!user && (
@@ -96,8 +105,10 @@ export default function App() {
           <Route path="/courses/:id" element={<CourseDetails />} />
           <Route path="/lessons/:id" element={<Lesson />} />
           <Route path="/my-courses" element={<MyCourses />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
       </div>
     </BrowserRouter>
   );
 }
+

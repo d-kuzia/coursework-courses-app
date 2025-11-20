@@ -39,7 +39,7 @@ router.post("/register", async (req, res) => {
     const result = await query(
       `insert into users (email, password_hash, name)
        values ($1, $2, $3)
-       returning id, email, name, role`,
+       returning id, email, name, role, is_active`,
       [email, passwordHash, name]
     );
 
@@ -66,7 +66,9 @@ router.post("/login", async (req, res) => {
     const { email, password } = parsed.data;
 
     const result = await query(
-      "select id, email, name, role, password_hash from users where email = $1",
+      `select id, email, name, role, password_hash, is_active
+       from users
+       where email = $1`,
       [email]
     );
 
@@ -80,7 +82,17 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const user = { id: u.id, email: u.email, name: u.name, role: u.role };
+    if (!u.is_active) {
+      return res.status(403).json({ message: "Account disabled" });
+    }
+
+    const user = {
+      id: u.id,
+      email: u.email,
+      name: u.name,
+      role: u.role,
+      is_active: u.is_active
+    };
     const token = signToken({ sub: u.id, role: u.role });
 
     res.json({ token, user });
@@ -94,7 +106,9 @@ router.post("/login", async (req, res) => {
 router.get("/me", auth, async (req, res) => {
   try {
     const result = await query(
-      "select id, email, name, role, created_at from users where id = $1",
+      `select id, email, name, role, created_at, is_active
+       from users
+       where id = $1`,
       [req.user.id]
     );
     res.json({ user: result.rows[0] || null });
