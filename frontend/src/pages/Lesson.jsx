@@ -43,13 +43,18 @@ function cloneDraft(value) {
 function quizToDraft(quiz) {
   if (!quiz) return makeEmptyQuiz();
   return {
-    questions: (quiz.questions || []).map((q) => ({
-      text: q.text,
-      options: (q.options || []).map((o) => ({
-        text: o.text,
-        isCorrect: Boolean(o.isCorrect)
-      }))
-    }))
+    questions: (quiz.questions || []).map((q) => {
+      let hasCorrect = false;
+      const opts = (q.options || []).map((o) => {
+        const isCorrect = Boolean(o.isCorrect) && !hasCorrect;
+        if (isCorrect) hasCorrect = true;
+        return { text: o.text, isCorrect };
+      });
+      if (!hasCorrect && opts.length) {
+        opts[0].isCorrect = true;
+      }
+      return { text: q.text, options: opts.length ? opts : makeEmptyQuiz().questions[0].options };
+    })
   };
 }
 
@@ -158,6 +163,23 @@ export default function Lesson() {
     setQuizDraft((prev) => {
       const next = cloneDraft(prev);
       next.questions[qIdx].options.splice(oIdx, 1);
+      if (!next.questions[qIdx].options.length) {
+        next.questions[qIdx].options = makeEmptyQuiz().questions[0].options;
+      }
+      if (!next.questions[qIdx].options.some((opt) => opt.isCorrect)) {
+        next.questions[qIdx].options[0].isCorrect = true;
+      }
+      return next;
+    });
+  }
+
+  function setCorrectOption(qIdx, oIdx) {
+    setQuizDraft((prev) => {
+      const next = cloneDraft(prev);
+      next.questions[qIdx].options = next.questions[qIdx].options.map((opt, idx) => ({
+        ...opt,
+        isCorrect: idx === oIdx
+      }));
       return next;
     });
   }
@@ -286,9 +308,10 @@ export default function Lesson() {
                       style={{ display: "flex", gap: 8, alignItems: "center" }}
                     >
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name={`correct-${idx}`}
                         checked={opt.isCorrect}
-                        onChange={(e) => updateOption(idx, oIdx, "isCorrect", e.target.checked)}
+                        onChange={() => setCorrectOption(idx, oIdx)}
                         title="Правильна відповідь"
                       />
                       <input
@@ -362,7 +385,11 @@ export default function Lesson() {
               {quizLoading ? "Перевірка..." : "Перевірити результат"}
             </button>
             {result && (
-              <div className="alert">
+              <div
+                className={`alert${
+                  result.correctCount === result.totalQuestions ? " success" : ""
+                }`}
+              >
                 Правильних відповідей: {result.correctCount} / {result.totalQuestions}
               </div>
             )}

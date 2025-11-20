@@ -3,6 +3,7 @@ import { z } from "zod";
 import pool, { query } from "../db.js";
 import auth from "../middleware/auth.js";
 import { verifyToken } from "../utils/jwt.js";
+import { markLessonCompleted } from "../utils/progress.js";
 
 const router = express.Router();
 
@@ -202,6 +203,17 @@ router.post("/lessons/:lessonId/quiz/submit", async (req, res) => {
   }
 
   try {
+    let requester = null;
+    const h = req.headers.authorization;
+    if (h && h.startsWith("Bearer ")) {
+      try {
+        const payload = verifyToken(h.slice(7));
+        requester = { id: payload.sub, role: payload.role };
+      } catch (_) {
+        requester = null;
+      }
+    }
+
     const quizRes = await query(
       "select id from lesson_quizzes where lesson_id = $1",
       [req.params.lessonId]
@@ -247,7 +259,21 @@ router.post("/lessons/:lessonId/quiz/submit", async (req, res) => {
       }
     }
 
-    res.json({ totalQuestions, correctCount });
+    const response = { totalQuestions, correctCount };
+
+    if (
+      requester &&
+      totalQuestions > 0 &&
+      correctCount === totalQuestions
+    ) {
+      try {
+        await markLessonCompleted(requester.id, req.params.lessonId);
+      } catch (progressErr) {
+        console.error("progress update error", progressErr);
+      }
+    }
+
+    res.json(response);
   } catch (err) {
     console.error("quiz submit error", err);
     res.status(500).json({ message: "Server error" });

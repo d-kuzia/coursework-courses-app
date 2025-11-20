@@ -2,6 +2,8 @@ import express from "express";
 import { z } from "zod";
 import { query } from "../db.js";
 import auth from "../middleware/auth.js";
+import { verifyToken } from "../utils/jwt.js";
+import { markLessonCompleted } from "../utils/progress.js";
 
 const router = express.Router();
 
@@ -82,6 +84,17 @@ router.post("/modules/:moduleId/lessons", auth, async (req, res) => {
 // GET /api/lessons/:id (public)
 router.get("/lessons/:id", async (req, res) => {
   try {
+    let requester = null;
+    const h = req.headers.authorization;
+    if (h && h.startsWith("Bearer ")) {
+      try {
+        const payload = verifyToken(h.slice(7));
+        requester = { id: payload.sub, role: payload.role };
+      } catch {
+        requester = null;
+      }
+    }
+
     const result = await query(
       `select l.id,
               l.title,
@@ -104,7 +117,15 @@ router.get("/lessons/:id", async (req, res) => {
     if (!result.rowCount) {
       return res.status(404).json({ message: "Not found" });
     }
-    res.json({ lesson: result.rows[0] });
+    const lesson = result.rows[0];
+
+    if (requester && requester.role === "USER") {
+      markLessonCompleted(requester.id, lesson.id).catch((err) =>
+        console.error("mark lesson complete error", err)
+      );
+    }
+
+    res.json({ lesson });
   } catch (err) {
     console.error("lesson detail error", err);
     res.status(500).json({ message: "Server error" });
