@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../hooks/useI18n";
 import {
   getCourses,
   createCourse,
@@ -10,6 +11,7 @@ import CourseForm from "./CourseForm";
 
 export default function Courses() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,9 +22,9 @@ export default function Courses() {
   useEffect(() => {
     getCourses()
       .then((data) => setCourses(data.courses || []))
-      .catch((err) => setError(err.message || "Не вдалося завантажити"))
+      .catch((err) => setError(err.message || t("courses.loadError")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   async function handleCreate(dto) {
     const created = await createCourse(dto);
@@ -31,7 +33,7 @@ export default function Courses() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm("Видалити курс?")) return;
+    if (!window.confirm(t("courses.confirmDelete"))) return;
     await apiDeleteCourse(id);
     setCourses((prev) => prev.filter((c) => c.id !== id));
   }
@@ -41,21 +43,21 @@ export default function Courses() {
       <div className="flex-between">
         <div>
           <h1 className="title" style={{ marginBottom: 4 }}>
-            Курси
+            {t("courses.title")}
           </h1>
-          <p className="subtitle">Список доступних курсів</p>
+          <p className="subtitle">{t("courses.subtitle")}</p>
         </div>
         {canCreateCourse && (
           <button className="button" onClick={() => setShowCreate((v) => !v)}>
-            {showCreate ? "Скасувати" : "Створити курс"}
+            {showCreate ? t("common.cancel") : t("courses.createCourse")}
           </button>
         )}
       </div>
 
       {error && <div className="alert">{error}</div>}
-      {loading && <div className="card">Завантаження...</div>}
+      {loading && <div className="card">{t("common.loading")}</div>}
 
-      {showCreate && <CourseForm submitLabel="Створити" onSubmit={handleCreate} />}
+      {showCreate && <CourseForm submitLabel={t("courses.submitCreate")} onSubmit={handleCreate} />}
 
       <div className="grid-courses">
         {courses.map((course) => {
@@ -70,22 +72,25 @@ export default function Courses() {
                   {course.title}
                 </Link>
                 <p className="muted" style={{ marginTop: 6 }}>
-                  {course.description || "Без опису"}
+                  {course.description || t("common.noDescription")}
                 </p>
                 <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                  Викладач: {course.teacher_name || "—"}
+                  {t("common.teacherLine", { name: course.teacher_name || "—" })}
                 </p>
                 <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                  Модулі: {course.module_count ?? 0} · Уроки: {course.lesson_count ?? 0}
+                  {t("common.modulesLessons", {
+                    modules: course.module_count ?? 0,
+                    lessons: course.lesson_count ?? 0
+                  })}
                 </p>
               </div>
               {canEditCourse && (
                 <div className="course-actions">
                   <Link to={`/courses/${course.id}`} className="button button-ghost">
-                    Редагувати
+                    {t("common.edit")}
                   </Link>
                   <button className="button button-danger" onClick={() => handleDelete(course.id)}>
-                    Видалити
+                    {t("common.delete")}
                   </button>
                 </div>
               )}
@@ -93,7 +98,7 @@ export default function Courses() {
           );
         })}
         {!loading && !courses.length && (
-          <div className="card text-center muted">Немає курсів.</div>
+          <div className="card text-center muted">{t("courses.empty")}</div>
         )}
       </div>
     </div>

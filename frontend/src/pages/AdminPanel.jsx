@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getUsers, updateUser } from "../api/users";
+import { useI18n } from "../hooks/useI18n";
 
 const ROLE_OPTIONS = [
   { value: "USER", label: "USER" },
@@ -11,6 +12,7 @@ const ROLE_OPTIONS = [
 
 export default function AdminPanel() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,12 +25,9 @@ export default function AdminPanel() {
     setError("");
     getUsers()
       .then((data) => setUsers(data.users || []))
-      .catch(
-        (err) =>
-          setError(err.message || "Не вдалося завантажити користувачів")
-      )
+      .catch((err) => setError(err.message || t("admin.loadError")))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, t]);
 
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== "ADMIN") return <Navigate to="/" replace />;
@@ -43,7 +42,7 @@ export default function AdminPanel() {
       );
       return true;
     } catch (err) {
-      setError(err.message || "Не вдалося оновити користувача");
+      setError(err.message || t("admin.updateError"));
       return false;
     } finally {
       setUpdatingUserId("");
@@ -87,12 +86,12 @@ export default function AdminPanel() {
   return (
     <div className="stack-lg">
       <div>
-        <h1 className="title">Admin Panel</h1>
-        <p className="subtitle">Керування користувачами та ролями</p>
+        <h1 className="title">{t("nav.admin")}</h1>
+        <p className="subtitle">{t("admin.subtitle")}</p>
       </div>
 
       {error && <div className="alert">{error}</div>}
-      {loading && <div className="card">Завантаження...</div>}
+      {loading && <div className="card">{t("common.loading")}</div>}
 
       {!loading && (
         <div className="stack">
@@ -121,7 +120,7 @@ export default function AdminPanel() {
 
               <div className="stack" style={{ marginTop: 12 }}>
                 <label className="muted" style={{ fontSize: 13 }}>
-                  Роль
+                  {t("admin.roleLabel")}
                 </label>
                 <select
                   value={account.role}
@@ -142,7 +141,8 @@ export default function AdminPanel() {
                 style={{ alignItems: "center", marginTop: 12, gap: 16 }}
               >
                 <div className="muted" style={{ fontSize: 13 }}>
-                  Статус: {account.is_active ? "Активний" : "Заблоковано"}
+                  {t("admin.statusLabel")}:{" "}
+                  {account.is_active ? t("admin.statusActive") : t("admin.statusBlocked")}
                 </div>
                 <button
                   className={
@@ -151,15 +151,13 @@ export default function AdminPanel() {
                   disabled={updatingUserId === account.id}
                   onClick={() => handleToggleActive(account)}
                 >
-                  {account.is_active ? "Заблокувати" : "Активувати"}
+                  {account.is_active ? t("admin.block") : t("admin.activate")}
                 </button>
               </div>
             </div>
           ))}
           {!users.length && (
-            <div className="card muted text-center">
-              Ще немає користувачів.
-            </div>
+            <div className="card muted text-center">{t("admin.empty")}</div>
           )}
         </div>
       )}

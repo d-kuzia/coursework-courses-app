@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useI18n } from "../hooks/useI18n";
 
-export default function CourseForm({ initialData, onSubmit, submitLabel = "Зберегти" }) {
+export default function CourseForm({ initialData, onSubmit, submitLabel }) {
+  const { t } = useI18n();
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const resolvedSubmitLabel = submitLabel ?? t("common.save");
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -13,7 +16,7 @@ export default function CourseForm({ initialData, onSubmit, submitLabel = "Зб�
     try {
       await onSubmit({ title, description });
     } catch (err) {
-      setError(err.message || "Помилка збереження");
+      setError(err.message || t("common.saveFailed"));
     } finally {
       setLoading(false);
     }
@@ -23,7 +26,7 @@ export default function CourseForm({ initialData, onSubmit, submitLabel = "Зб�
     <form onSubmit={handleSubmit} className="card stack">
       {error && <div className="alert">{error}</div>}
       <div className="stack">
-        <label className="label">Назва</label>
+        <label className="label">{t("courseForm.nameLabel")}</label>
         <input
           className="input"
           value={title}
@@ -32,7 +35,7 @@ export default function CourseForm({ initialData, onSubmit, submitLabel = "Зб�
         />
       </div>
       <div className="stack">
-        <label className="label">Опис</label>
+        <label className="label">{t("courseForm.descriptionLabel")}</label>
         <textarea
           className="input textarea"
           rows={4}
@@ -41,7 +44,7 @@ export default function CourseForm({ initialData, onSubmit, submitLabel = "Зб�
         />
       </div>
       <button className="button" disabled={loading}>
-        {loading ? "Збереження..." : submitLabel}
+        {loading ? t("common.saving") : resolvedSubmitLabel}
       </button>
     </form>
   );

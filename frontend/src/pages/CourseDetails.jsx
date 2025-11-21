@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../hooks/useI18n";
 import {
   getCourse,
   updateCourse,
@@ -19,6 +20,7 @@ export default function CourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useI18n();
 
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,9 +46,9 @@ export default function CourseDetails() {
     setLoading(true);
     getCourse(id)
       .then((data) => setCourse(data.course))
-      .catch((err) => setError(err.message || "Не вдалося завантажити"))
+      .catch((err) => setError(err.message || t("common.loadFailed")))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     if (!user) {
@@ -82,7 +84,7 @@ export default function CourseDetails() {
   }
 
   async function handleDelete() {
-    if (!window.confirm("Видалити курс?")) return;
+    if (!window.confirm(t("courses.confirmDelete"))) return;
     await apiDeleteCourse(id);
     navigate("/courses");
   }
@@ -103,7 +105,7 @@ export default function CourseDetails() {
       );
       setModuleTitle("");
     } catch (err) {
-      setModuleError(err.message || "Не вдалося створити модуль");
+      setModuleError(err.message || t("courseDetails.moduleCreateError"));
     } finally {
       setModuleLoading(false);
     }
@@ -141,7 +143,7 @@ export default function CourseDetails() {
       });
       setLessonDrafts((prev) => ({ ...prev, [moduleId]: { title: "", content: "", videoUrl: "" } }));
     } catch (err) {
-      updateLessonDraft(moduleId, "error", err.message || "Не вдалося створити урок");
+      updateLessonDraft(moduleId, "error", err.message || t("courseDetails.lessonCreateError"));
     } finally {
       updateLessonDraft(moduleId, "loading", false);
     }
@@ -154,7 +156,7 @@ export default function CourseDetails() {
       await enrollInCourse(id);
       setIsEnrolled(true);
     } catch (err) {
-      setEnrollError(err.message || "Не вдалося записатися");
+      setEnrollError(err.message || t("courseDetails.enrollError"));
     } finally {
       setEnrollLoading(false);
     }
@@ -168,10 +170,10 @@ export default function CourseDetails() {
     getCourseEnrollments(id)
       .then((data) => setEnrollments(data.enrollments || []))
       .catch((err) =>
-        setEnrollmentsError(err.message || "Не вдалося завантажити список студентів")
+        setEnrollmentsError(err.message || t("courseDetails.enrollmentsError"))
       )
       .finally(() => setEnrollmentsLoading(false));
-  }, [canViewEnrollments, id]);
+  }, [canViewEnrollments, id, t]);
 
   useEffect(() => {
     if (activeTab === "students") {
@@ -179,9 +181,9 @@ export default function CourseDetails() {
     }
   }, [activeTab, loadEnrollments]);
 
-  if (loading) return <div className="card">Завантаження...</div>;
+  if (loading) return <div className="card">{t("common.loading")}</div>;
   if (error) return <div className="card alert">{error}</div>;
-  if (!course) return <div className="card">Не знайдено</div>;
+  if (!course) return <div className="card">{t("common.notFound")}</div>;
 
   return (
     <div className="stack-lg">
@@ -191,32 +193,34 @@ export default function CourseDetails() {
             <h1 className="title" style={{ marginBottom: 4 }}>
               {course.title}
             </h1>
-            <p className="muted">Викладач: {course.teacher_name || "—"}</p>
+            <p className="muted">
+              {t("common.teacherLine", { name: course.teacher_name || "—" })}
+            </p>
           </div>
           {canEdit && (
             <div className="course-actions">
               <button className="button button-ghost" onClick={() => setEditing((v) => !v)}>
-                {editing ? "Скасувати" : "Редагувати"}
+                {editing ? t("common.cancel") : t("common.edit")}
               </button>
-              <button className="button button-danger" onClick={handleDelete}>
-                Видалити
-              </button>
+            <button className="button button-danger" onClick={handleDelete}>
+              {t("common.delete")}
+            </button>
             </div>
           )}
         </div>
         <p className="subtitle" style={{ marginTop: 12, whiteSpace: "pre-line" }}>
-          {course.description || "Без опису"}
+          {course.description || t("common.noDescription")}
         </p>
 
         {user && (
           <div className="stack" style={{ marginTop: 16 }}>
-            {isOwner && <div className="pill">Ви викладаєте цей курс</div>}
+            {isOwner && <div className="pill">{t("courseDetails.youTeach")}</div>}
             {!isOwner && isEnrolled && (
-              <div className="pill">Ви вже записані на цей курс</div>
+              <div className="pill">{t("courseDetails.alreadyEnrolled")}</div>
             )}
             {!isOwner && !isEnrolled && (
               <button className="button" onClick={handleEnroll} disabled={enrollLoading}>
-                {enrollLoading ? "Запис..." : "Записатися на курс"}
+                {enrollLoading ? t("courseDetails.enrollLoading") : t("courseDetails.enrollAction")}
               </button>
             )}
             {enrollError && <div className="alert">{enrollError}</div>}
@@ -229,13 +233,13 @@ export default function CourseDetails() {
               className={`button button-ghost${activeTab === "modules" ? " active" : ""}`}
               onClick={() => setActiveTab("modules")}
             >
-              Структура
+              {t("courseDetails.tabStructure")}
             </button>
             <button
               className={`button button-ghost${activeTab === "students" ? " active" : ""}`}
               onClick={() => setActiveTab("students")}
             >
-              Записані студенти
+              {t("courseDetails.tabStudents")}
             </button>
           </div>
         )}
@@ -243,12 +247,12 @@ export default function CourseDetails() {
         {activeTab === "students" && canViewEnrollments && (
           <div className="card stack" style={{ marginTop: 16 }}>
             <h2 className="title" style={{ fontSize: 20 }}>
-              Студенти
+              {t("courseDetails.studentsTitle")}
             </h2>
-            {enrollmentsLoading && <div>Завантаження...</div>}
+            {enrollmentsLoading && <div>{t("common.loading")}</div>}
             {enrollmentsError && <div className="alert">{enrollmentsError}</div>}
             {!enrollmentsLoading && !enrollments.length && (
-              <div className="muted">Немає записів.</div>
+              <div className="muted">{t("courseDetails.noEnrollments")}</div>
             )}
             {enrollments.map((enrollment) => (
               <div key={enrollment.id} className="card stack">
@@ -256,10 +260,13 @@ export default function CourseDetails() {
                   {enrollment.name} ({enrollment.email})
                 </div>
                 <div className="muted" style={{ fontSize: 13 }}>
-                  Роль: {enrollment.role} · Статус: {enrollment.status}
+                  {t("courseDetails.enrollmentMeta", {
+                    role: enrollment.role,
+                    status: enrollment.status
+                  })}
                 </div>
                 <div className="muted" style={{ fontSize: 13 }}>
-                  Прогрес: {enrollment.progress}%
+                  {t("common.progressLine", { value: enrollment.progress ?? 0 })}
                 </div>
                 <div
                   style={{
@@ -284,26 +291,26 @@ export default function CourseDetails() {
       </div>
 
       {editing && (
-        <CourseForm initialData={course} submitLabel="Оновити" onSubmit={handleUpdate} />
+        <CourseForm initialData={course} submitLabel={t("courseDetails.updateCourse")} onSubmit={handleUpdate} />
       )}
 
       {activeTab === "modules" && (
         <div className="card stack">
           <div className="flex-between">
             <h2 className="title" style={{ fontSize: 20 }}>
-              Модулі
+              {t("courseDetails.modulesTitle")}
             </h2>
             {canEdit && (
               <form style={{ display: "flex", gap: 8 }} onSubmit={handleCreateModule}>
                 <input
                   className="input"
-                  placeholder="Назва модуля"
+                  placeholder={t("courseDetails.modulePlaceholder")}
                   value={moduleTitle}
                   onChange={(e) => setModuleTitle(e.target.value)}
                   required
                 />
                 <button className="button" disabled={moduleLoading}>
-                  {moduleLoading ? "Створення..." : "Додати"}
+                  {moduleLoading ? t("courseDetails.moduleCreating") : t("courseDetails.addModule")}
                 </button>
               </form>
             )}
@@ -321,7 +328,7 @@ export default function CourseDetails() {
                         {module.title}
                       </h3>
                       <p className="muted" style={{ fontSize: 13 }}>
-                        Уроків: {module.lessons?.length || 0}
+                        {t("courseDetails.lessonsCount", { count: module.lessons?.length || 0 })}
                       </p>
                     </div>
                   </div>
@@ -333,13 +340,13 @@ export default function CourseDetails() {
                           {lesson.title}
                         </div>
                         <div className="muted" style={{ fontSize: 13 }}>
-                          Порядок: {lesson.position ?? 0}
+                          {t("courseDetails.lessonOrder", { position: lesson.position ?? 0 })}
                         </div>
                       </Link>
                     ))}
                     {!module.lessons?.length && (
                       <div className="muted" style={{ fontSize: 14 }}>
-                        Уроків ще нема.
+                        {t("courseDetails.noLessons")}
                       </div>
                     )}
                   </div>
@@ -349,26 +356,26 @@ export default function CourseDetails() {
                       {draft.error && <div className="alert">{draft.error}</div>}
                       <input
                         className="input"
-                        placeholder="Назва уроку"
+                        placeholder={t("courseDetails.lessonTitlePlaceholder")}
                         value={draft.title || ""}
                         onChange={(e) => updateLessonDraft(module.id, "title", e.target.value)}
                         required
                       />
                       <input
                         className="input"
-                        placeholder="YouTube URL (необов'язково)"
+                        placeholder={t("courseDetails.lessonVideoPlaceholder")}
                         value={draft.videoUrl || ""}
                         onChange={(e) => updateLessonDraft(module.id, "videoUrl", e.target.value)}
                       />
                       <textarea
                         className="input textarea"
                         rows={3}
-                        placeholder="Опис уроку"
+                        placeholder={t("courseDetails.lessonDescriptionPlaceholder")}
                         value={draft.content || ""}
                         onChange={(e) => updateLessonDraft(module.id, "content", e.target.value)}
                       />
                       <button className="button" disabled={draft.loading}>
-                        {draft.loading ? "Збереження..." : "Додати урок"}
+                        {draft.loading ? t("courseDetails.lessonSaving") : t("courseDetails.addLesson")}
                       </button>
                     </form>
                   )}
@@ -378,7 +385,7 @@ export default function CourseDetails() {
 
             {!course.modules?.length && (
               <div className="muted" style={{ fontSize: 14 }}>
-                Модулів ще нема.
+                {t("courseDetails.noModules")}
               </div>
             )}
           </div>

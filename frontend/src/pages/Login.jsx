@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../hooks/useI18n";
 
 export default function Login() {
   const { login } = useAuth();
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
@@ -13,18 +15,18 @@ export default function Login() {
     try {
       await login(email, password);
     } catch (e) {
-      setErr(e.message || "Помилка входу");
+      setErr(e.message || t("auth.loginError"));
     }
   }
 
   return (
     <div className="card" style={{ maxWidth: 420, margin: "0 auto" }}>
       <div className="stack">
-        <h1 className="title">Вхід</h1>
+        <h1 className="title">{t("auth.loginTitle")}</h1>
         {err && <div className="alert">{err}</div>}
         <form className="stack" onSubmit={handleSubmit}>
           <div className="stack">
-            <label className="label">Email</label>
+            <label className="label">{t("auth.emailLabel")}</label>
             <input
               className="input"
               type="email"
@@ -35,18 +37,18 @@ export default function Login() {
             />
           </div>
           <div className="stack">
-            <label className="label">Пароль</label>
+            <label className="label">{t("auth.passwordLabel")}</label>
             <input
               className="input"
               type="password"
-              placeholder="Пароль"
+              placeholder={t("auth.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
           <button className="button" style={{ width: "100%" }}>
-            Увійти
+            {t("auth.loginButton")}
           </button>
         </form>
       </div>

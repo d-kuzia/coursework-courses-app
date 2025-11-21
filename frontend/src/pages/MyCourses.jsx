@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyCourses } from "../api/enrollments";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../hooks/useI18n";
 
 export default function MyCourses() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,24 +18,24 @@ export default function MyCourses() {
     }
     getMyCourses()
       .then((data) => setCourses(data.courses || []))
-      .catch((err) => setError(err.message || "Не вдалося завантажити курси"))
+      .catch((err) => setError(err.message || t("myCourses.loadError")))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, t]);
 
   if (!user) {
-    return <div className="card">Будь ласка, увійдіть, щоб бачити свої курси.</div>;
+    return <div className="card">{t("myCourses.loginPrompt")}</div>;
   }
 
-  if (loading) return <div className="card">Завантаження...</div>;
+  if (loading) return <div className="card">{t("common.loading")}</div>;
   if (error) return <div className="card alert">{error}</div>;
 
   return (
     <div className="stack-lg">
       <div className="card">
         <h1 className="title" style={{ marginBottom: 4 }}>
-          Мої курси
+          {t("myCourses.title")}
         </h1>
-        <p className="subtitle">Курси, на які ви записалися</p>
+        <p className="subtitle">{t("myCourses.subtitle")}</p>
       </div>
 
       <div className="grid-courses">
@@ -44,18 +46,18 @@ export default function MyCourses() {
                 {course.title}
               </Link>
               <p className="muted" style={{ marginTop: 6 }}>
-                {course.description || "Без опису"}
+                {course.description || t("common.noDescription")}
               </p>
               <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                Викладач: {course.teacher_name || "—"}
+                {t("common.teacherLine", { name: course.teacher_name || "—" })}
               </p>
               <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                Статус: {course.status}
+                {t("common.status")}: {course.status}
               </p>
             </div>
             <div style={{ marginTop: 8 }}>
               <div className="muted" style={{ fontSize: 13, marginBottom: 4 }}>
-                Прогрес: {course.progress}%
+                {t("common.progressLine", { value: course.progress })}
               </div>
               <div
                 style={{
@@ -77,7 +79,7 @@ export default function MyCourses() {
           </div>
         ))}
         {!courses.length && (
-          <div className="card text-center muted">Ви ще не записані на курси.</div>
+          <div className="card text-center muted">{t("myCourses.empty")}</div>
         )}
       </div>
     </div>

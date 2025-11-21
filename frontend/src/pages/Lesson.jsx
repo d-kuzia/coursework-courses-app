@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getLesson, getQuiz, saveQuiz, submitQuiz } from "../api/lessons";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from "../hooks/useI18n";
 
 function getYouTubeEmbed(url) {
   if (!url) return null;
@@ -61,6 +62,7 @@ function quizToDraft(quiz) {
 export default function Lesson() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { t } = useI18n();
 
   const [lesson, setLesson] = useState(null);
   const [quiz, setQuiz] = useState(null);
@@ -86,9 +88,9 @@ export default function Lesson() {
         setQuiz(quizData.quiz);
         setQuizDraft(quizToDraft(quizData.quiz));
       })
-      .catch((err) => setError(err.message || "Не вдалося завантажити"))
+      .catch((err) => setError(err.message || t("lessons.loadError")))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, t]);
 
   const embedUrl = useMemo(() => getYouTubeEmbed(lesson?.video_url), [lesson]);
 
@@ -114,7 +116,7 @@ export default function Lesson() {
       const res = await submitQuiz(id, payload);
       setResult(res);
     } catch (err) {
-      setQuizError(err.message || "Не вдалося перевірити");
+      setQuizError(err.message || t("lessons.checkError"));
     } finally {
       setQuizLoading(false);
     }
@@ -190,9 +192,11 @@ export default function Lesson() {
     setQuizSaving(true);
     try {
       for (const q of quizDraft.questions) {
-        if (!q.text.trim()) throw new Error("У кожного питання має бути текст");
-        if (!q.options || q.options.length < 2) throw new Error("Мінімум 2 варіанти на питання");
-        if (!q.options.some((o) => o.isCorrect)) throw new Error("У кожного питання має бути правильний варіант");
+        if (!q.text.trim()) throw new Error(t("lessons.validation.textRequired"));
+        if (!q.options || q.options.length < 2) throw new Error(t("lessons.validation.optionMin"));
+        if (!q.options.some((o) => o.isCorrect)) {
+          throw new Error(t("lessons.validation.correctRequired"));
+        }
       }
 
       const payload = {
@@ -210,15 +214,15 @@ export default function Lesson() {
       setQuiz(refreshed.quiz);
       setEditingQuiz(false);
     } catch (err) {
-      setQuizSaveError(err.message || "Не вдалося зберегти тест");
+      setQuizSaveError(err.message || t("lessons.saveQuizError"));
     } finally {
       setQuizSaving(false);
     }
   }
 
-  if (loading) return <div className="card">Завантаження...</div>;
+  if (loading) return <div className="card">{t("common.loading")}</div>;
   if (error) return <div className="card alert">{error}</div>;
-  if (!lesson) return <div className="card">Урок не знайдено</div>;
+  if (!lesson) return <div className="card">{t("lessons.notFound")}</div>;
 
   return (
     <div className="stack-lg">
@@ -226,7 +230,9 @@ export default function Lesson() {
         <div className="flex-between">
           <div className="stack">
             <p className="muted" style={{ fontSize: 13 }}>
-              <Link to={`/courses/${lesson.course_id}`}>До курсу: {lesson.course_title}</Link>
+              <Link to={`/courses/${lesson.course_id}`}>
+                {t("lessons.backToCourse", { title: lesson.course_title })}
+              </Link>
               {" / "}
               {lesson.module_title}
             </p>
@@ -257,7 +263,7 @@ export default function Lesson() {
       <div className="card stack">
         <div className="flex-between">
           <h2 className="title" style={{ fontSize: 18 }}>
-            Тест
+            {t("lessons.quizTitle")}
           </h2>
           {canEditQuiz && (
             <div className="flex" style={{ gap: 8 }}>
@@ -269,7 +275,11 @@ export default function Lesson() {
                   setQuizDraft(quizToDraft(quiz));
                 }}
               >
-                {editingQuiz ? "Скасувати" : quiz ? "Редагувати тест" : "Створити тест"}
+                {editingQuiz
+                  ? t("common.cancel")
+                  : quiz
+                    ? t("lessons.editQuiz")
+                    : t("lessons.createQuiz")}
               </button>
             </div>
           )}
@@ -282,7 +292,7 @@ export default function Lesson() {
               <div key={idx} className="card stack">
                 <div className="flex-between">
                   <div className="title" style={{ fontSize: 16 }}>
-                    Питання {idx + 1}
+                    {t("lessons.questionTitle", { index: idx + 1 })}
                   </div>
                   {quizDraft.questions.length > 1 && (
                     <button
@@ -290,13 +300,13 @@ export default function Lesson() {
                       className="button button-ghost"
                       onClick={() => removeQuestion(idx)}
                     >
-                      Видалити
+                      {t("common.delete")}
                     </button>
                   )}
                 </div>
                 <input
                   className="input"
-                  placeholder="Текст питання"
+                  placeholder={t("lessons.questionPlaceholder")}
                   value={q.text}
                   onChange={(e) => updateQuestion(idx, "text", e.target.value)}
                   required
@@ -312,11 +322,11 @@ export default function Lesson() {
                         name={`correct-${idx}`}
                         checked={opt.isCorrect}
                         onChange={() => setCorrectOption(idx, oIdx)}
-                        title="Правильна відповідь"
+                        title={t("lessons.correctAnswer")}
                       />
                       <input
                         className="input"
-                        placeholder="Текст варіанту"
+                        placeholder={t("lessons.optionPlaceholder")}
                         value={opt.text}
                         onChange={(e) => updateOption(idx, oIdx, "text", e.target.value)}
                         required
@@ -338,21 +348,21 @@ export default function Lesson() {
                     className="button button-ghost"
                     onClick={() => addOption(idx)}
                   >
-                    Додати варіант
+                    {t("lessons.addOption")}
                   </button>
                 </div>
               </div>
             ))}
             <button type="button" className="button button-ghost" onClick={addQuestion}>
-              Додати питання
+              {t("lessons.addQuestion")}
             </button>
             <button className="button" type="submit" disabled={quizSaving}>
-              {quizSaving ? "Збереження..." : "Зберегти тест"}
+              {quizSaving ? t("lessons.savingQuiz") : t("lessons.saveQuiz")}
             </button>
           </form>
         )}
 
-        {!editingQuiz && !quiz && <div className="muted">У цього уроку ще немає тесту.</div>}
+        {!editingQuiz && !quiz && <div className="muted">{t("lessons.noQuiz")}</div>}
 
         {!editingQuiz && quiz && (
           <div className="stack">
@@ -382,7 +392,7 @@ export default function Lesson() {
             ))}
             {quizError && <div className="alert">{quizError}</div>}
             <button className="button" onClick={handleSubmitQuiz} disabled={quizLoading}>
-              {quizLoading ? "Перевірка..." : "Перевірити результат"}
+              {quizLoading ? t("lessons.submittingQuiz") : t("lessons.submitQuiz")}
             </button>
             {result && (
               <div
@@ -390,7 +400,10 @@ export default function Lesson() {
                   result.correctCount === result.totalQuestions ? " success" : ""
                 }`}
               >
-                Правильних відповідей: {result.correctCount} / {result.totalQuestions}
+                {t("lessons.resultSummary", {
+                  correct: result.correctCount,
+                  total: result.totalQuestions
+                })}
               </div>
             )}
           </div>

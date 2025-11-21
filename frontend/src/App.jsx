@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "./context/AuthContext";
+import { useI18n } from "./hooks/useI18n";
+import { LANG_OPTIONS } from "./i18n/config";
 
 // сторінки
 import Login from "./pages/Login.jsx";
@@ -16,24 +18,50 @@ import AdminPanel from "./pages/AdminPanel.jsx";
 import { getHealth, getDbCheck } from "./api";
 
 function Home() {
-  const [status, setStatus] = useState("loading...");
-  const [dbStatus, setDbStatus] = useState("loading...");
+  const { t } = useI18n();
+  const [backendStatus, setBackendStatus] = useState("loading");
+  const [dbStatus, setDbStatus] = useState({ state: "loading", time: "" });
 
   useEffect(() => {
+    let cancelled = false;
     getHealth()
-      .then((d) => setStatus(d.ok ? "backend: OK" : "backend: FAIL"))
-      .catch(() => setStatus("backend: FAIL"));
+      .then((d) => {
+        if (!cancelled) setBackendStatus(d.ok ? "ok" : "fail");
+      })
+      .catch(() => {
+        if (!cancelled) setBackendStatus("fail");
+      });
 
     getDbCheck()
-      .then((d) => setDbStatus(d.connected ? `db: OK(${d.time})` : "db: FAIL"))
-      .catch(() => setDbStatus("db: FAIL"));
+      .then((d) => {
+        if (!cancelled) {
+          setDbStatus(d.connected ? { state: "ok", time: d.time } : { state: "fail", time: "" });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setDbStatus({ state: "fail", time: "" });
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const backendText = useMemo(() => {
+    if (backendStatus === "loading") return t("common.loading");
+    return backendStatus === "ok" ? t("home.backendOk") : t("home.backendFail");
+  }, [backendStatus, t]);
+
+  const databaseText = useMemo(() => {
+    if (dbStatus.state === "loading") return t("common.loading");
+    return dbStatus.state === "ok" ? t("home.dbOk", { time: dbStatus.time }) : t("home.dbFail");
+  }, [dbStatus, t]);
 
   return (
     <div className="card stack">
-      <h1 className="title">Online Courses — MVP</h1>
-      <p className="subtitle">{status}</p>
-      <p className="subtitle">{dbStatus}</p>
+      <h1 className="title">{t("home.title")}</h1>
+      <p className="subtitle">{backendText}</p>
+      <p className="subtitle">{databaseText}</p>
     </div>
   );
 }
@@ -41,24 +69,26 @@ function Home() {
 function NavBar() {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { t, lang, setLang } = useI18n();
+  const languageOptions = LANG_OPTIONS;
 
   return (
     <nav className="navbar">
       <Link to="/" className={location.pathname === "/" ? "active" : ""}>
-        Головна
+        {t("nav.home")}
       </Link>
       <Link
         to="/courses"
         className={location.pathname.startsWith("/courses") ? "active" : ""}
       >
-        Курси
+        {t("nav.courses")}
       </Link>
       {user && (
         <Link
           to="/my-courses"
           className={location.pathname.startsWith("/my-courses") ? "active" : ""}
         >
-          Мої курси
+          {t("nav.myCourses")}
         </Link>
       )}
       {user?.role === "ADMIN" && (
@@ -66,23 +96,47 @@ function NavBar() {
           to="/admin"
           className={location.pathname.startsWith("/admin") ? "active" : ""}
         >
-          Admin Panel
+          {t("nav.admin")}
         </Link>
       )}
       <div className="navbar-spacer" />
 
+      <label
+        htmlFor="language-select"
+        style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, marginRight: 12 }}
+      >
+        {t("nav.language")}:
+        <select
+          id="language-select"
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          style={{
+            border: "1px solid #d1d5db",
+            borderRadius: 4,
+            padding: "2px 6px",
+            background: "transparent"
+          }}
+        >
+          {languageOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
       {!user && (
         <>
-          <Link to="/login">Вхід</Link>
-          <Link to="/register">Реєстрація</Link>
+          <Link to="/login">{t("nav.login")}</Link>
+          <Link to="/register">{t("nav.register")}</Link>
         </>
       )}
 
       {user && (
         <>
-          <Link to="/profile">Профіль</Link>
+          <Link to="/profile">{t("nav.profile")}</Link>
           <button className="button button-ghost" onClick={logout}>
-            Вийти
+            {t("nav.logout")}
           </button>
         </>
       )}
@@ -111,4 +165,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
