@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../hooks/useI18n";
 import {
@@ -12,6 +12,7 @@ import CourseForm from "./CourseForm";
 export default function Courses() {
   const { user } = useAuth();
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -38,6 +39,17 @@ export default function Courses() {
     setCourses((prev) => prev.filter((c) => c.id !== id));
   }
 
+  function handleCardNavigate(courseId) {
+    navigate(`/courses/${courseId}`);
+  }
+
+  function handleCardKeyDown(event, courseId) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleCardNavigate(courseId);
+    }
+  }
+
   return (
     <div className="stack-lg">
       <div className="flex-between">
@@ -48,7 +60,7 @@ export default function Courses() {
           <p className="subtitle">{t("courses.subtitle")}</p>
         </div>
         {canCreateCourse && (
-          <button className="button" onClick={() => setShowCreate((v) => !v)}>
+          <button className="button button-wide" onClick={() => setShowCreate((v) => !v)}>
             {showCreate ? t("common.cancel") : t("courses.createCourse")}
           </button>
         )}
@@ -66,11 +78,17 @@ export default function Courses() {
             (user?.role === "TEACHER" && course.teacher_id === user.id);
 
           return (
-            <div key={course.id} className="card course-card">
+            <div
+              key={course.id}
+              className="card card-pressable card-link course-card"
+              onClick={() => handleCardNavigate(course.id)}
+              onKeyDown={(event) => handleCardKeyDown(event, course.id)}
+              tabIndex={0}
+            >
               <div>
-                <Link to={`/courses/${course.id}`} className="title" style={{ fontSize: 18 }}>
+                <p className="title" style={{ fontSize: 18, margin: 0 }}>
                   {course.title}
-                </Link>
+                </p>
                 <p className="muted" style={{ marginTop: 6 }}>
                   {course.description || t("common.noDescription")}
                 </p>
@@ -86,10 +104,20 @@ export default function Courses() {
               </div>
               {canEditCourse && (
                 <div className="course-actions">
-                  <Link to={`/courses/${course.id}`} className="button button-ghost">
+                  <Link
+                    to={`/courses/${course.id}`}
+                    className="button button-ghost button-sm"
+                    onClick={(event) => event.stopPropagation()}
+                  >
                     {t("common.edit")}
                   </Link>
-                  <button className="button button-danger" onClick={() => handleDelete(course.id)}>
+                  <button
+                    className="button button-danger button-sm"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleDelete(course.id);
+                    }}
+                  >
                     {t("common.delete")}
                   </button>
                 </div>

@@ -216,7 +216,7 @@ export default function CourseDetails() {
           <div className="stack" style={{ marginTop: 16 }}>
             {isOwner && <div className="pill">{t("courseDetails.youTeach")}</div>}
             {!isOwner && isEnrolled && (
-              <div className="pill">{t("courseDetails.alreadyEnrolled")}</div>
+              <div className="pill pill-flat">{t("courseDetails.alreadyEnrolled")}</div>
             )}
             {!isOwner && !isEnrolled && (
               <button className="button" onClick={handleEnroll} disabled={enrollLoading}>
@@ -335,7 +335,7 @@ export default function CourseDetails() {
 
                   <div className="stack">
                     {(module.lessons || []).map((lesson) => (
-                      <Link key={lesson.id} to={`/lessons/${lesson.id}`} className="card stack">
+                      <Link key={lesson.id} to={`/lessons/${lesson.id}`} className="card card-pressable stack">
                         <div className="title" style={{ fontSize: 16 }}>
                           {lesson.title}
                         </div>

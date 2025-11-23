@@ -226,16 +226,25 @@ export default function Lesson() {
 
   return (
     <div className="stack-lg">
+      <div className="card lesson-crumb">
+        <p className="lesson-crumb-eyebrow">
+          {t("nav.courses")} / {t("courseDetails.modulesTitle")}
+        </p>
+        <div className="lesson-crumb-links">
+          <Link
+            to={`/courses/${lesson.course_id}`}
+            className="lesson-crumb-link"
+            aria-label={t("lessons.backToCourse", { title: lesson.course_title })}
+          >
+            {lesson.course_title}
+          </Link>
+          <span className="lesson-crumb-divider">/</span>
+          <span className="lesson-crumb-module">{lesson.module_title}</span>
+        </div>
+      </div>
       <div className="card stack">
         <div className="flex-between">
           <div className="stack">
-            <p className="muted" style={{ fontSize: 13 }}>
-              <Link to={`/courses/${lesson.course_id}`}>
-                {t("lessons.backToCourse", { title: lesson.course_title })}
-              </Link>
-              {" / "}
-              {lesson.module_title}
-            </p>
             <h1 className="title" style={{ marginBottom: 4 }}>
               {lesson.title}
             </h1>
@@ -371,22 +380,23 @@ export default function Lesson() {
                 <div className="title" style={{ fontSize: 16 }}>
                   {idx + 1}. {q.text}
                 </div>
-                <div className="stack">
-                  {q.options.map((opt) => (
-                    <label
-                      key={opt.id}
-                      style={{ display: "flex", gap: 8, alignItems: "center" }}
-                    >
-                      <input
-                        type="radio"
-                        name={`q-${q.id}`}
-                        value={opt.id}
-                        checked={answers[q.id] === opt.id}
-                        onChange={() => onChangeAnswer(q.id, opt.id)}
-                      />
-                      <span>{opt.text}</span>
-                    </label>
-                  ))}
+                <div className="stack quiz-options">
+                  {q.options.map((opt, optionIndex) => {
+                    const selected = answers[q.id] === opt.id;
+                    const optionLabel = String.fromCharCode(65 + optionIndex);
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        className={`quiz-option${selected ? " selected" : ""}`}
+                        onClick={() => onChangeAnswer(q.id, opt.id)}
+                        aria-pressed={selected}
+                      >
+                        <span className="quiz-option-marker">{optionLabel}</span>
+                        <span className="quiz-option-text">{opt.text}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -396,8 +406,8 @@ export default function Lesson() {
             </button>
             {result && (
               <div
-                className={`alert${
-                  result.correctCount === result.totalQuestions ? " success" : ""
+                className={`alert alert-flat${
+                  result.correctCount === result.totalQuestions ? " success" : " error"
                 }`}
               >
                 {t("lessons.resultSummary", {

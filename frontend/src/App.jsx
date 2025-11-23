@@ -71,75 +71,88 @@ function NavBar() {
   const { user, logout } = useAuth();
   const { t, lang, setLang } = useI18n();
   const languageOptions = LANG_OPTIONS;
+  const safeIndex = languageOptions.findIndex((option) => option.value === lang);
+  const hasOptions = languageOptions.length > 0;
+  const currentLangIndex = safeIndex >= 0 ? safeIndex : 0;
+  const nextLang = hasOptions
+    ? languageOptions[(currentLangIndex + 1) % languageOptions.length]
+    : { value: lang, label: lang?.toUpperCase?.() ?? "??" };
+
+  function handleToggleLanguage() {
+    if (!hasOptions) return;
+    setLang(nextLang.value);
+  }
 
   return (
     <nav className="navbar">
-      <Link to="/" className={location.pathname === "/" ? "active" : ""}>
-        {t("nav.home")}
-      </Link>
-      <Link
-        to="/courses"
-        className={location.pathname.startsWith("/courses") ? "active" : ""}
-      >
-        {t("nav.courses")}
-      </Link>
-      {user && (
-        <Link
-          to="/my-courses"
-          className={location.pathname.startsWith("/my-courses") ? "active" : ""}
-        >
-          {t("nav.myCourses")}
+      <div className="neo-brand">
+        <div>
+          <p className="neo-brand-title">Coursecraft</p>
+          <p className="neo-brand-subtitle">{t("nav.courses")}</p>
+        </div>
+      </div>
+
+      <div className="navbar-links">
+        <Link to="/" className={location.pathname === "/" ? "active" : ""}>
+          {t("nav.home")}
         </Link>
-      )}
-      {user?.role === "ADMIN" && (
         <Link
-          to="/admin"
-          className={location.pathname.startsWith("/admin") ? "active" : ""}
+          to="/courses"
+          className={location.pathname.startsWith("/courses") ? "active" : ""}
         >
-          {t("nav.admin")}
+          {t("nav.courses")}
         </Link>
-      )}
+        {user && (
+          <Link
+            to="/my-courses"
+            className={location.pathname.startsWith("/my-courses") ? "active" : ""}
+          >
+            {t("nav.myCourses")}
+          </Link>
+        )}
+        {user?.role === "ADMIN" && (
+          <Link
+            to="/admin"
+            className={location.pathname.startsWith("/admin") ? "active" : ""}
+          >
+            {t("nav.admin")}
+          </Link>
+        )}
+      </div>
       <div className="navbar-spacer" />
 
-      <label
-        htmlFor="language-select"
-        style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, marginRight: 12 }}
-      >
-        {t("nav.language")}:
-        <select
-          id="language-select"
-          value={lang}
-          onChange={(e) => setLang(e.target.value)}
-          style={{
-            border: "1px solid #d1d5db",
-            borderRadius: 4,
-            padding: "2px 6px",
-            background: "transparent"
-          }}
+      <div className="navbar-actions">
+        <button
+          type="button"
+          className="button button-ghost"
+          onClick={handleToggleLanguage}
+          aria-label={t("nav.language")}
         >
-          {languageOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
+          {lang.toUpperCase()}
+        </button>
 
-      {!user && (
-        <>
-          <Link to="/login">{t("nav.login")}</Link>
-          <Link to="/register">{t("nav.register")}</Link>
-        </>
-      )}
+        {!user && (
+          <div className="navbar-auth">
+            <Link to="/login" className="button button-ghost">
+              {t("nav.login")}
+            </Link>
+            <Link to="/register" className="button">
+              {t("nav.register")}
+            </Link>
+          </div>
+        )}
 
-      {user && (
-        <>
-          <Link to="/profile">{t("nav.profile")}</Link>
-          <button className="button button-ghost" onClick={logout}>
-            {t("nav.logout")}
-          </button>
-        </>
-      )}
+        {user && (
+          <div className="navbar-auth">
+            <Link to="/profile" className="button button-ghost button-wide">
+              {t("nav.profile")}
+            </Link>
+            <button className="button button-danger button-wide" onClick={logout}>
+              {t("nav.logout")}
+            </button>
+          </div>
+        )}
+      </div>
     </nav>
   );
 }
@@ -147,20 +160,22 @@ function NavBar() {
 export default function App() {
   return (
     <BrowserRouter>
-      <NavBar />
+      <div className="app-shell">
+        <NavBar />
 
-      <div className="page">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/courses/:id" element={<CourseDetails />} />
-          <Route path="/lessons/:id" element={<Lesson />} />
-          <Route path="/my-courses" element={<MyCourses />} />
-          <Route path="/admin" element={<AdminPanel />} />
-        </Routes>
+        <div className="page">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/courses/:id" element={<CourseDetails />} />
+            <Route path="/lessons/:id" element={<Lesson />} />
+            <Route path="/my-courses" element={<MyCourses />} />
+            <Route path="/admin" element={<AdminPanel />} />
+          </Routes>
+        </div>
       </div>
     </BrowserRouter>
   );
