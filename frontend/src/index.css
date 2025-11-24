@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: "Space Grotesk", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --neo-black: #050505;
   --neo-yellow: #ffe55a;
   --neo-paper: #fffdf3;
@@ -52,7 +52,7 @@ a {
 }
 
 #root {
-  width: min(1200px, calc(100% - 40px));
+  width: min(1400px, calc(100% - 40px));
   margin: 48px auto 80px;
   position: relative;
   z-index: 1;
@@ -90,7 +90,7 @@ a {
 }
 
 .neo-brand-title {
-  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   margin: 0;
   font-size: 20px;
   text-transform: uppercase;
@@ -117,6 +117,8 @@ a {
   box-shadow: 5px 5px 0 var(--neo-black);
   background: var(--neo-paper);
   color: var(--neo-black);
+  font-weight: 700;
+  letter-spacing: 0.08em;
   transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
 }
 
@@ -142,6 +144,11 @@ a {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+}
+
+.navbar-actions .button {
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
 
 .navbar-auth {
@@ -296,7 +303,7 @@ a {
 .title {
   margin: 0;
   font-size: 28px;
-  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

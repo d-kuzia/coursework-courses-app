@@ -221,7 +221,7 @@ export default function CourseDetails() {
 
         {user && (
           <div className="stack" style={{ marginTop: 16 }}>
-            {isOwner && <div className="pill">{t("courseDetails.youTeach")}</div>}
+            {isOwner && <div className="pill pill-flat">{t("courseDetails.youTeach")}</div>}
             {!isOwner && isEnrolled && (
               <div className="pill pill-flat">{t("courseDetails.alreadyEnrolled")}</div>
             )}

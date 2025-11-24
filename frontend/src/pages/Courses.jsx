@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../hooks/useI18n";
-import {
-  getCourses,
-  createCourse,
-  deleteCourse as apiDeleteCourse
-} from "../api/courses";
+import { getCourses, createCourse } from "../api/courses";
 import CourseForm from "./CourseForm";
 
 export default function Courses() {
@@ -33,12 +29,6 @@ export default function Courses() {
     setShowCreate(false);
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm(t("courses.confirmDelete"))) return;
-    await apiDeleteCourse(id);
-    setCourses((prev) => prev.filter((c) => c.id !== id));
-  }
-
   function handleCardNavigate(courseId) {
     navigate(`/courses/${courseId}`);
   }
@@ -52,18 +42,20 @@ export default function Courses() {
 
   return (
     <div className="stack-lg">
-      <div className="flex-between">
-        <div>
-          <h1 className="title" style={{ marginBottom: 4 }}>
-            {t("courses.title")}
-          </h1>
-          <p className="subtitle">{t("courses.subtitle")}</p>
+      <div className="card">
+        <div className="flex-between">
+          <div>
+            <h1 className="title" style={{ marginBottom: 4 }}>
+              {t("courses.title")}
+            </h1>
+            <p className="subtitle">{t("courses.subtitle")}</p>
+          </div>
+          {canCreateCourse && (
+            <button className="button button-wide" onClick={() => setShowCreate((v) => !v)}>
+              {showCreate ? t("common.cancel") : t("courses.createCourse")}
+            </button>
+          )}
         </div>
-        {canCreateCourse && (
-          <button className="button button-wide" onClick={() => setShowCreate((v) => !v)}>
-            {showCreate ? t("common.cancel") : t("courses.createCourse")}
-          </button>
-        )}
       </div>
 
       {error && <div className="alert">{error}</div>}
@@ -73,10 +65,6 @@ export default function Courses() {
 
       <div className="grid-courses">
         {courses.map((course) => {
-          const canEditCourse =
-            user?.role === "ADMIN" ||
-            (user?.role === "TEACHER" && course.teacher_id === user.id);
-
           return (
             <div
               key={course.id}
@@ -102,26 +90,6 @@ export default function Courses() {
                   })}
                 </p>
               </div>
-              {canEditCourse && (
-                <div className="course-actions">
-                  <Link
-                    to={`/courses/${course.id}`}
-                    className="button button-ghost button-sm"
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    {t("common.edit")}
-                  </Link>
-                  <button
-                    className="button button-danger button-sm"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleDelete(course.id);
-                    }}
-                  >
-                    {t("common.delete")}
-                  </button>
-                </div>
-              )}
             </div>
           );
         })}
