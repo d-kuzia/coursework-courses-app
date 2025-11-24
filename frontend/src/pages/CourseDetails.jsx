@@ -21,6 +21,7 @@ export default function CourseDetails() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useI18n();
+  const userId = user?.id;
 
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,7 +73,7 @@ export default function CourseDetails() {
     };
   }, [user, id]);
 
-  const isOwner = user && course && course.teacher_id === user.id;
+  const isOwner = userId && course && course.teacher_id === userId;
   const canEdit =
     user?.role === "ADMIN" || (user?.role === "TEACHER" && isOwner);
   const canViewEnrollments = canEdit;
@@ -180,6 +181,12 @@ export default function CourseDetails() {
       loadEnrollments();
     }
   }, [activeTab, loadEnrollments]);
+
+  useEffect(() => {
+    if (activeTab === "students" && !canViewEnrollments) {
+      setActiveTab("modules");
+    }
+  }, [activeTab, canViewEnrollments]);
 
   if (loading) return <div className="card">{t("common.loading")}</div>;
   if (error) return <div className="card alert">{error}</div>;

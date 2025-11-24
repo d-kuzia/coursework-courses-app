@@ -12,6 +12,7 @@ import Courses from "./pages/Courses.jsx";
 import CourseDetails from "./pages/CourseDetails.jsx";
 import Lesson from "./pages/Lesson.jsx";
 import MyCourses from "./pages/MyCourses.jsx";
+import CreatedCourses from "./pages/CreatedCourses.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
 
 // старі API
@@ -102,6 +103,14 @@ function NavBar() {
         >
           {t("nav.courses")}
         </Link>
+        {user?.role === "TEACHER" && (
+          <Link
+            to="/created-courses"
+            className={location.pathname.startsWith("/created-courses") ? "active" : ""}
+          >
+            {t("nav.createdCourses")}
+          </Link>
+        )}
         {user && (
           <Link
             to="/my-courses"
@@ -173,6 +182,7 @@ export default function App() {
             <Route path="/courses/:id" element={<CourseDetails />} />
             <Route path="/lessons/:id" element={<Lesson />} />
             <Route path="/my-courses" element={<MyCourses />} />
+            <Route path="/created-courses" element={<CreatedCourses />} />
             <Route path="/admin" element={<AdminPanel />} />
           </Routes>
         </div>

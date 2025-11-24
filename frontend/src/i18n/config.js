@@ -11,6 +11,7 @@ export const translations = {
       home: "Головна",
       courses: "Курси",
       myCourses: "Мої курси",
+      createdCourses: "Створені курси",
       admin: "Адмін-панель",
       login: "Вхід",
       register: "Реєстрація",
@@ -35,6 +36,7 @@ export const translations = {
       modulesLessons: "Модулі: {{modules}} · Уроки: {{lessons}}",
       status: "Статус",
       progress: "Прогрес",
+      retry: "Повторити",
       edit: "Редагувати",
       delete: "Видалити",
       cancel: "Скасувати",
@@ -136,6 +138,14 @@ export const translations = {
       subtitle: "Курси, на які ви записалися",
       empty: "Ви ще не записані на курси."
     },
+    createdCourses: {
+      loadError: "Не вдалося завантажити курси",
+      loginPrompt: "Будь ласка, увійдіть, щоб переглянути створені вами курси.",
+      notTeacher: "Ця сторінка доступна лише викладачам.",
+      title: "Створені курси",
+      subtitle: "Курси, які ви викладаєте",
+      empty: "Ви ще не створили жодного курсу."
+    },
     profile: {
       notAuthenticated: "Ви не увійшли в систему.",
       title: "Профіль",
@@ -161,6 +171,7 @@ export const translations = {
       home: "Home",
       courses: "Courses",
       myCourses: "My courses",
+      createdCourses: "Created courses",
       admin: "Admin panel",
       login: "Sign in",
       register: "Sign up",
@@ -185,6 +196,7 @@ export const translations = {
       modulesLessons: "Modules: {{modules}} · Lessons: {{lessons}}",
       status: "Status",
       progress: "Progress",
+      retry: "Retry",
       edit: "Edit",
       delete: "Delete",
       cancel: "Cancel",
@@ -285,6 +297,14 @@ export const translations = {
       title: "My courses",
       subtitle: "Courses you are enrolled in",
       empty: "You are not enrolled in any courses yet."
+    },
+    createdCourses: {
+      loadError: "Failed to load courses",
+      loginPrompt: "Sign in to view the courses you created.",
+      notTeacher: "This page is available for teachers only.",
+      title: "Created courses",
+      subtitle: "Courses you teach",
+      empty: "You have not created any courses yet."
     },
     profile: {
       notAuthenticated: "You are not signed in.",
