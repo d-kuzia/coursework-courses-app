@@ -2,7 +2,7 @@ export const DEFAULT_LANG = "ua";
 
 export const LANG_OPTIONS = [
   { value: "ua", label: "UA" },
-  { value: "en", label: "EN" }
+  { value: "en", label: "EN" },
 ];
 
 export const translations = {
@@ -17,14 +17,14 @@ export const translations = {
       register: "Реєстрація",
       profile: "Профіль",
       logout: "Вийти",
-      language: "Мова"
+      language: "Мова",
     },
     home: {
       title: "Online Courses — MVP",
       backendOk: "Бекенд: працює",
       backendFail: "Бекенд: помилка",
       dbOk: "База даних: OK ({{time}})",
-      dbFail: "База даних: помилка"
+      dbFail: "База даних: помилка",
     },
     common: {
       loading: "Завантаження...",
@@ -44,7 +44,7 @@ export const translations = {
       saving: "Збереження...",
       notFound: "Не знайдено",
       noRecords: "Немає записів.",
-      progressLine: "Прогрес: {{value}}%"
+      progressLine: "Прогрес: {{value}}%",
     },
     auth: {
       emailLabel: "Email",
@@ -58,7 +58,7 @@ export const translations = {
       nameLabel: "Ім'я",
       namePlaceholder: "Ваше ім'я",
       passwordHint: "Пароль (мін. 8 символів)",
-      createAccount: "Створити акаунт"
+      createAccount: "Створити акаунт",
     },
     courses: {
       title: "Курси",
@@ -67,11 +67,11 @@ export const translations = {
       loadError: "Не вдалося завантажити",
       submitCreate: "Створити",
       confirmDelete: "Видалити курс?",
-      empty: "Немає курсів."
+      empty: "Немає курсів.",
     },
     courseForm: {
       nameLabel: "Назва",
-      descriptionLabel: "Опис"
+      descriptionLabel: "Опис",
     },
     courseDetails: {
       youTeach: "Ви викладаєте цей курс",
@@ -101,7 +101,10 @@ export const translations = {
       enrollError: "Не вдалося записатися",
       moduleCreateError: "Не вдалося створити модуль",
       lessonCreateError: "Не вдалося створити урок",
-      enrollmentsError: "Не вдалося завантажити список студентів"
+      enrollmentsError: "Не вдалося завантажити список студентів",
+      authRequired: "Авторизуйтесь, щоб бачити модулі та уроки детально",
+      authRequiredDescription:
+        "Для перегляду структури курсу, модулів та уроків необхідно увійти в систему",
     },
     lessons: {
       loadError: "Не вдалося завантажити",
@@ -128,15 +131,15 @@ export const translations = {
       validation: {
         textRequired: "У кожного питання має бути текст",
         optionMin: "Мінімум 2 варіанти на питання",
-        correctRequired: "У кожного питання має бути правильний варіант"
-      }
+        correctRequired: "У кожного питання має бути правильний варіант",
+      },
     },
     myCourses: {
       loadError: "Не вдалося завантажити курси",
       loginPrompt: "Будь ласка, увійдіть, щоб бачити свої курси.",
       title: "Мої курси",
       subtitle: "Курси, на які ви записалися",
-      empty: "Ви ще не записані на курси."
+      empty: "Ви ще не записані на курси.",
     },
     createdCourses: {
       loadError: "Не вдалося завантажити курси",
@@ -144,14 +147,14 @@ export const translations = {
       notTeacher: "Ця сторінка доступна лише викладачам.",
       title: "Створені курси",
       subtitle: "Курси, які ви викладаєте",
-      empty: "Ви ще не створили жодного курсу."
+      empty: "Ви ще не створили жодного курсу.",
     },
     profile: {
       notAuthenticated: "Ви не увійшли в систему.",
       title: "Профіль",
       name: "Імʼя",
       email: "Email",
-      role: "Роль"
+      role: "Роль",
     },
     admin: {
       subtitle: "Керування користувачами та ролями",
@@ -163,8 +166,8 @@ export const translations = {
       statusBlocked: "Заблоковано",
       block: "Заблокувати",
       activate: "Активувати",
-      empty: "Ще немає користувачів."
-    }
+      empty: "Ще немає користувачів.",
+    },
   },
   en: {
     nav: {
@@ -177,14 +180,14 @@ export const translations = {
       register: "Sign up",
       profile: "Profile",
       logout: "Log out",
-      language: "Language"
+      language: "Language",
     },
     home: {
       title: "Online Courses — MVP",
       backendOk: "Backend: OK",
       backendFail: "Backend: FAIL",
       dbOk: "DB: OK ({{time}})",
-      dbFail: "DB: FAIL"
+      dbFail: "DB: FAIL",
     },
     common: {
       loading: "Loading...",
@@ -204,7 +207,7 @@ export const translations = {
       saving: "Saving...",
       notFound: "Not found",
       noRecords: "No entries.",
-      progressLine: "Progress: {{value}}%"
+      progressLine: "Progress: {{value}}%",
     },
     auth: {
       emailLabel: "Email",
@@ -218,7 +221,7 @@ export const translations = {
       nameLabel: "Name",
       namePlaceholder: "Your name",
       passwordHint: "Password (min. 8 characters)",
-      createAccount: "Create account"
+      createAccount: "Create account",
     },
     courses: {
       title: "Courses",
@@ -227,11 +230,11 @@ export const translations = {
       loadError: "Failed to load data",
       submitCreate: "Create",
       confirmDelete: "Delete course?",
-      empty: "No courses yet."
+      empty: "No courses yet.",
     },
     courseForm: {
       nameLabel: "Title",
-      descriptionLabel: "Description"
+      descriptionLabel: "Description",
     },
     courseDetails: {
       youTeach: "You teach this course",
@@ -261,7 +264,10 @@ export const translations = {
       enrollError: "Failed to enroll",
       moduleCreateError: "Failed to create module",
       lessonCreateError: "Failed to create lesson",
-      enrollmentsError: "Failed to load students"
+      enrollmentsError: "Failed to load students",
+      authRequired: "Sign in to view modules and lessons in detail",
+      authRequiredDescription:
+        "You need to sign in to view the course structure, modules, and lessons",
     },
     lessons: {
       loadError: "Failed to load data",
@@ -288,15 +294,15 @@ export const translations = {
       validation: {
         textRequired: "Each question must have text",
         optionMin: "Each question needs at least 2 options",
-        correctRequired: "Each question must have a correct option"
-      }
+        correctRequired: "Each question must have a correct option",
+      },
     },
     myCourses: {
       loadError: "Failed to load enrolled courses",
       loginPrompt: "Please sign in to see your courses.",
       title: "My courses",
       subtitle: "Courses you are enrolled in",
-      empty: "You are not enrolled in any courses yet."
+      empty: "You are not enrolled in any courses yet.",
     },
     createdCourses: {
       loadError: "Failed to load courses",
@@ -304,14 +310,14 @@ export const translations = {
       notTeacher: "This page is available for teachers only.",
       title: "Created courses",
       subtitle: "Courses you teach",
-      empty: "You have not created any courses yet."
+      empty: "You have not created any courses yet.",
     },
     profile: {
       notAuthenticated: "You are not signed in.",
       title: "Profile",
       name: "Name",
       email: "Email",
-      role: "Role"
+      role: "Role",
     },
     admin: {
       subtitle: "Manage users and roles",
@@ -323,7 +329,7 @@ export const translations = {
       statusBlocked: "Blocked",
       block: "Block",
       activate: "Activate",
-      empty: "No users yet."
-    }
-  }
+      empty: "No users yet.",
+    },
+  },
 };

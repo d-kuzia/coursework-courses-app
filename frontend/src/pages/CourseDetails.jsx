@@ -5,14 +5,14 @@ import { useI18n } from "../hooks/useI18n";
 import {
   getCourse,
   updateCourse,
-  deleteCourse as apiDeleteCourse
+  deleteCourse as apiDeleteCourse,
 } from "../api/courses";
 import { createModule } from "../api/modules";
 import { createLesson } from "../api/lessons";
 import {
   enrollInCourse,
   getMyCourses,
-  getCourseEnrollments
+  getCourseEnrollments,
 } from "../api/enrollments";
 import CourseForm from "./CourseForm";
 
@@ -100,7 +100,10 @@ export default function CourseDetails() {
         prev
           ? {
               ...prev,
-              modules: [...(prev.modules || []), { ...result.module, lessons: [] }]
+              modules: [
+                ...(prev.modules || []),
+                { ...result.module, lessons: [] },
+              ],
             }
           : prev
       );
@@ -115,7 +118,7 @@ export default function CourseDetails() {
   function updateLessonDraft(moduleId, field, value) {
     setLessonDrafts((prev) => ({
       ...prev,
-      [moduleId]: { ...(prev[moduleId] || {}), [field]: value }
+      [moduleId]: { ...(prev[moduleId] || {}), [field]: value },
     }));
   }
 
@@ -132,19 +135,28 @@ export default function CourseDetails() {
         title: draft.title,
         content: draft.content || undefined,
         videoUrl: draft.videoUrl?.trim() || undefined,
-        position: nextPosition
+        position: nextPosition,
       };
       const result = await createLesson(moduleId, payload);
       setCourse((prev) => {
         if (!prev) return prev;
         const modules = (prev.modules || []).map((m) =>
-          m.id === moduleId ? { ...m, lessons: [...(m.lessons || []), result.lesson] } : m
+          m.id === moduleId
+            ? { ...m, lessons: [...(m.lessons || []), result.lesson] }
+            : m
         );
         return { ...prev, modules };
       });
-      setLessonDrafts((prev) => ({ ...prev, [moduleId]: { title: "", content: "", videoUrl: "" } }));
+      setLessonDrafts((prev) => ({
+        ...prev,
+        [moduleId]: { title: "", content: "", videoUrl: "" },
+      }));
     } catch (err) {
-      updateLessonDraft(moduleId, "error", err.message || t("courseDetails.lessonCreateError"));
+      updateLessonDraft(
+        moduleId,
+        "error",
+        err.message || t("courseDetails.lessonCreateError")
+      );
     } finally {
       updateLessonDraft(moduleId, "loading", false);
     }
@@ -206,28 +218,46 @@ export default function CourseDetails() {
           </div>
           {canEdit && (
             <div className="course-actions">
-              <button className="button button-ghost" onClick={() => setEditing((v) => !v)}>
+              <button
+                className="button button-ghost"
+                onClick={() => setEditing((v) => !v)}
+              >
                 {editing ? t("common.cancel") : t("common.edit")}
               </button>
-            <button className="button button-danger" onClick={handleDelete}>
-              {t("common.delete")}
-            </button>
+              <button className="button button-danger" onClick={handleDelete}>
+                {t("common.delete")}
+              </button>
             </div>
           )}
         </div>
-        <p className="subtitle" style={{ marginTop: 12, whiteSpace: "pre-line" }}>
+        <p
+          className="subtitle"
+          style={{ marginTop: 12, whiteSpace: "pre-line" }}
+        >
           {course.description || t("common.noDescription")}
         </p>
 
         {user && (
           <div className="stack" style={{ marginTop: 16 }}>
-            {isOwner && <div className="pill pill-flat">{t("courseDetails.youTeach")}</div>}
+            {isOwner && (
+              <div className="pill pill-flat">
+                {t("courseDetails.youTeach")}
+              </div>
+            )}
             {!isOwner && isEnrolled && (
-              <div className="pill pill-flat">{t("courseDetails.alreadyEnrolled")}</div>
+              <div className="pill pill-flat">
+                {t("courseDetails.alreadyEnrolled")}
+              </div>
             )}
             {!isOwner && !isEnrolled && (
-              <button className="button" onClick={handleEnroll} disabled={enrollLoading}>
-                {enrollLoading ? t("courseDetails.enrollLoading") : t("courseDetails.enrollAction")}
+              <button
+                className="button"
+                onClick={handleEnroll}
+                disabled={enrollLoading}
+              >
+                {enrollLoading
+                  ? t("courseDetails.enrollLoading")
+                  : t("courseDetails.enrollAction")}
               </button>
             )}
             {enrollError && <div className="alert">{enrollError}</div>}
@@ -237,13 +267,17 @@ export default function CourseDetails() {
         {canViewEnrollments && (
           <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
             <button
-              className={`button button-ghost${activeTab === "modules" ? " active" : ""}`}
+              className={`button button-ghost${
+                activeTab === "modules" ? " active" : ""
+              }`}
               onClick={() => setActiveTab("modules")}
             >
               {t("courseDetails.tabStructure")}
             </button>
             <button
-              className={`button button-ghost${activeTab === "students" ? " active" : ""}`}
+              className={`button button-ghost${
+                activeTab === "students" ? " active" : ""
+              }`}
               onClick={() => setActiveTab("students")}
             >
               {t("courseDetails.tabStudents")}
@@ -257,7 +291,9 @@ export default function CourseDetails() {
               {t("courseDetails.studentsTitle")}
             </h2>
             {enrollmentsLoading && <div>{t("common.loading")}</div>}
-            {enrollmentsError && <div className="alert">{enrollmentsError}</div>}
+            {enrollmentsError && (
+              <div className="alert">{enrollmentsError}</div>
+            )}
             {!enrollmentsLoading && !enrollments.length && (
               <div className="muted">{t("courseDetails.noEnrollments")}</div>
             )}
@@ -269,25 +305,30 @@ export default function CourseDetails() {
                 <div className="muted" style={{ fontSize: 13 }}>
                   {t("courseDetails.enrollmentMeta", {
                     role: enrollment.role,
-                    status: enrollment.status
+                    status: enrollment.status,
                   })}
                 </div>
                 <div className="muted" style={{ fontSize: 13 }}>
-                  {t("common.progressLine", { value: enrollment.progress ?? 0 })}
+                  {t("common.progressLine", {
+                    value: enrollment.progress ?? 0,
+                  })}
                 </div>
                 <div
                   style={{
                     height: 6,
                     borderRadius: 999,
                     background: "#e5e7eb",
-                    overflow: "hidden"
+                    overflow: "hidden",
                   }}
                 >
                   <div
                     style={{
-                      width: `${Math.min(Math.max(enrollment.progress, 0), 100)}%`,
+                      width: `${Math.min(
+                        Math.max(enrollment.progress, 0),
+                        100
+                      )}%`,
                       background: "#2563eb",
-                      height: "100%"
+                      height: "100%",
                     }}
                   />
                 </div>
@@ -298,104 +339,178 @@ export default function CourseDetails() {
       </div>
 
       {editing && (
-        <CourseForm initialData={course} submitLabel={t("courseDetails.updateCourse")} onSubmit={handleUpdate} />
+        <CourseForm
+          initialData={course}
+          submitLabel={t("courseDetails.updateCourse")}
+          onSubmit={handleUpdate}
+        />
       )}
 
       {activeTab === "modules" && (
         <div className="card stack">
-          <div className="flex-between">
-            <h2 className="title" style={{ fontSize: 20 }}>
-              {t("courseDetails.modulesTitle")}
-            </h2>
-            {canEdit && (
-              <form style={{ display: "flex", gap: 8 }} onSubmit={handleCreateModule}>
-                <input
-                  className="input"
-                  placeholder={t("courseDetails.modulePlaceholder")}
-                  value={moduleTitle}
-                  onChange={(e) => setModuleTitle(e.target.value)}
-                  required
-                />
-                <button className="button" disabled={moduleLoading}>
-                  {moduleLoading ? t("courseDetails.moduleCreating") : t("courseDetails.addModule")}
-                </button>
-              </form>
-            )}
-          </div>
-          {moduleError && <div className="alert">{moduleError}</div>}
-
-          <div className="stack">
-            {(course.modules || []).map((module) => {
-              const draft = lessonDrafts[module.id] || {};
-              return (
-                <div key={module.id} className="card stack">
-                  <div className="flex-between">
-                    <div>
-                      <h3 className="title" style={{ fontSize: 18 }}>
-                        {module.title}
-                      </h3>
-                      <p className="muted" style={{ fontSize: 13 }}>
-                        {t("courseDetails.lessonsCount", { count: module.lessons?.length || 0 })}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="stack">
-                    {(module.lessons || []).map((lesson) => (
-                      <Link key={lesson.id} to={`/lessons/${lesson.id}`} className="card card-pressable stack">
-                        <div className="title" style={{ fontSize: 16 }}>
-                          {lesson.title}
-                        </div>
-                        <div className="muted" style={{ fontSize: 13 }}>
-                          {t("courseDetails.lessonOrder", { position: lesson.position ?? 0 })}
-                        </div>
-                      </Link>
-                    ))}
-                    {!module.lessons?.length && (
-                      <div className="muted" style={{ fontSize: 14 }}>
-                        {t("courseDetails.noLessons")}
-                      </div>
-                    )}
-                  </div>
-
-                  {canEdit && (
-                    <form className="stack" onSubmit={(e) => handleCreateLesson(e, module.id)}>
-                      {draft.error && <div className="alert">{draft.error}</div>}
-                      <input
-                        className="input"
-                        placeholder={t("courseDetails.lessonTitlePlaceholder")}
-                        value={draft.title || ""}
-                        onChange={(e) => updateLessonDraft(module.id, "title", e.target.value)}
-                        required
-                      />
-                      <input
-                        className="input"
-                        placeholder={t("courseDetails.lessonVideoPlaceholder")}
-                        value={draft.videoUrl || ""}
-                        onChange={(e) => updateLessonDraft(module.id, "videoUrl", e.target.value)}
-                      />
-                      <textarea
-                        className="input textarea"
-                        rows={3}
-                        placeholder={t("courseDetails.lessonDescriptionPlaceholder")}
-                        value={draft.content || ""}
-                        onChange={(e) => updateLessonDraft(module.id, "content", e.target.value)}
-                      />
-                      <button className="button" disabled={draft.loading}>
-                        {draft.loading ? t("courseDetails.lessonSaving") : t("courseDetails.addLesson")}
-                      </button>
-                    </form>
-                  )}
-                </div>
-              );
-            })}
-
-            {!course.modules?.length && (
-              <div className="muted" style={{ fontSize: 14 }}>
-                {t("courseDetails.noModules")}
+          {!user ? (
+            <div
+              className="stack"
+              style={{ textAlign: "center", padding: "2rem 0" }}
+            >
+              <h2 className="title" style={{ fontSize: 20, marginBottom: 8 }}>
+                {t("courseDetails.authRequired")}
+              </h2>
+              <p className="muted" style={{ marginBottom: 24 }}>
+                {t("courseDetails.authRequiredDescription")}
+              </p>
+              <div
+                style={{ display: "flex", gap: 12, justifyContent: "center" }}
+              >
+                <Link to="/login" className="button">
+                  {t("nav.login")}
+                </Link>
+                <Link to="/register" className="button button-ghost">
+                  {t("nav.register")}
+                </Link>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex-between">
+                <h2 className="title" style={{ fontSize: 20 }}>
+                  {t("courseDetails.modulesTitle")}
+                </h2>
+                {canEdit && (
+                  <form
+                    style={{ display: "flex", gap: 8 }}
+                    onSubmit={handleCreateModule}
+                  >
+                    <input
+                      className="input"
+                      placeholder={t("courseDetails.modulePlaceholder")}
+                      value={moduleTitle}
+                      onChange={(e) => setModuleTitle(e.target.value)}
+                      required
+                    />
+                    <button className="button" disabled={moduleLoading}>
+                      {moduleLoading
+                        ? t("courseDetails.moduleCreating")
+                        : t("courseDetails.addModule")}
+                    </button>
+                  </form>
+                )}
+              </div>
+              {moduleError && <div className="alert">{moduleError}</div>}
+
+              <div className="stack">
+                {(course.modules || []).map((module) => {
+                  const draft = lessonDrafts[module.id] || {};
+                  return (
+                    <div key={module.id} className="card stack">
+                      <div className="flex-between">
+                        <div>
+                          <h3 className="title" style={{ fontSize: 18 }}>
+                            {module.title}
+                          </h3>
+                          <p className="muted" style={{ fontSize: 13 }}>
+                            {t("courseDetails.lessonsCount", {
+                              count: module.lessons?.length || 0,
+                            })}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="stack">
+                        {(module.lessons || []).map((lesson) => (
+                          <Link
+                            key={lesson.id}
+                            to={`/lessons/${lesson.id}`}
+                            className="card card-pressable stack"
+                          >
+                            <div className="title" style={{ fontSize: 16 }}>
+                              {lesson.title}
+                            </div>
+                            <div className="muted" style={{ fontSize: 13 }}>
+                              {t("courseDetails.lessonOrder", {
+                                position: lesson.position ?? 0,
+                              })}
+                            </div>
+                          </Link>
+                        ))}
+                        {!module.lessons?.length && (
+                          <div className="muted" style={{ fontSize: 14 }}>
+                            {t("courseDetails.noLessons")}
+                          </div>
+                        )}
+                      </div>
+
+                      {canEdit && (
+                        <form
+                          className="stack"
+                          onSubmit={(e) => handleCreateLesson(e, module.id)}
+                        >
+                          {draft.error && (
+                            <div className="alert">{draft.error}</div>
+                          )}
+                          <input
+                            className="input"
+                            placeholder={t(
+                              "courseDetails.lessonTitlePlaceholder"
+                            )}
+                            value={draft.title || ""}
+                            onChange={(e) =>
+                              updateLessonDraft(
+                                module.id,
+                                "title",
+                                e.target.value
+                              )
+                            }
+                            required
+                          />
+                          <input
+                            className="input"
+                            placeholder={t(
+                              "courseDetails.lessonVideoPlaceholder"
+                            )}
+                            value={draft.videoUrl || ""}
+                            onChange={(e) =>
+                              updateLessonDraft(
+                                module.id,
+                                "videoUrl",
+                                e.target.value
+                              )
+                            }
+                          />
+                          <textarea
+                            className="input textarea"
+                            rows={3}
+                            placeholder={t(
+                              "courseDetails.lessonDescriptionPlaceholder"
+                            )}
+                            value={draft.content || ""}
+                            onChange={(e) =>
+                              updateLessonDraft(
+                                module.id,
+                                "content",
+                                e.target.value
+                              )
+                            }
+                          />
+                          <button className="button" disabled={draft.loading}>
+                            {draft.loading
+                              ? t("courseDetails.lessonSaving")
+                              : t("courseDetails.addLesson")}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {!course.modules?.length && (
+                  <div className="muted" style={{ fontSize: 14 }}>
+                    {t("courseDetails.noModules")}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
