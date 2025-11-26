@@ -10,30 +10,77 @@ export function setToken(token) {
 }
 
 export async function api(path, options = {}) {
-  const headers = options.headers
-    ? new Headers(options.headers)
+  const { responseType = "json", ...restOptions } = options;
+  const headers = restOptions.headers
+    ? new Headers(restOptions.headers)
     : new Headers();
-  headers.set("Content-Type", "application/json");
+
+  const hasBody =
+    restOptions.body !== undefined &&
+    restOptions.body !== null &&
+    restOptions.body !== "" &&
+    !(restOptions.body instanceof FormData);
+
+  if (hasBody && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  } else if (
+    typeof restOptions.body === "string" &&
+    restOptions.body.length &&
+    !headers.has("Content-Type")
+  ) {
+    headers.set("Content-Type", "application/json");
+  }
 
   const token = getToken();
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers
-  });
+  const fetchOptions = {
+    ...restOptions,
+    headers,
+  };
+
+  if (
+    hasBody &&
+    typeof restOptions.body !== "string" &&
+    !(restOptions.body instanceof FormData)
+  ) {
+    fetchOptions.body = JSON.stringify(restOptions.body);
+  }
+
+  if (responseType) {
+    delete fetchOptions.responseType;
+  }
+
+  const res = await fetch(`${API_URL}${path}`, fetchOptions);
 
   if (!res.ok) {
     let msg = `Request failed with status ${res.status}`;
     try {
-      const data = await res.json();
+      const data = await res.clone().json();
       if (data && data.message) msg = data.message;
     } catch (_) {
-      // якщо відповіді без JSON - ігнор
+      try {
+        const text = await res.clone().text();
+        if (text) msg = text;
+      } catch (_) {
+        // ignore
+      }
     }
     throw new Error(msg);
+  }
+
+  if (responseType === "blob") {
+    return res.blob();
+  }
+
+  if (responseType === "text") {
+    return res.text();
+  }
+
+  if (res.status === 204) {
+    return null;
   }
 
   return res.json();

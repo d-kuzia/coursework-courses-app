@@ -140,6 +140,10 @@ export const translations = {
       title: "Мої курси",
       subtitle: "Курси, на які ви записалися",
       empty: "Ви ще не записані на курси.",
+      certificateAction: "Завантажити сертифікат",
+      certificateError: "Не вдалося завантажити сертифікат",
+      certificateHint: "Сертифікат доступний після проходження 100% курсу.",
+      certificateLoading: "Генеруємо сертифікат...",
     },
     createdCourses: {
       loadError: "Не вдалося завантажити курси",
@@ -303,6 +307,10 @@ export const translations = {
       title: "My courses",
       subtitle: "Courses you are enrolled in",
       empty: "You are not enrolled in any courses yet.",
+      certificateAction: "Download certificate",
+      certificateError: "Failed to download certificate",
+      certificateHint: "Certificates appear once the course is 100% complete.",
+      certificateLoading: "Preparing certificate...",
     },
     createdCourses: {
       loadError: "Failed to load courses",

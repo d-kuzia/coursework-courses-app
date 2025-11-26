@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyCourses } from "../api/enrollments";
+import { getMyCourses, downloadCertificate } from "../api/enrollments";
 import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../hooks/useI18n";
 
@@ -11,6 +11,8 @@ export default function MyCourses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [certificateError, setCertificateError] = useState("");
+  const [downloadingCourseId, setDownloadingCourseId] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -41,6 +43,36 @@ export default function MyCourses() {
     }
   }
 
+  function buildFileName(title) {
+    const safe = (title || "course")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/(^-|-$)/g, "");
+    return `certificate-${safe || "course"}.pdf`;
+  }
+
+  async function handleCertificateDownload(event, course) {
+    event.preventDefault();
+    event.stopPropagation();
+    setCertificateError("");
+    setDownloadingCourseId(course.course_id);
+    try {
+      const blob = await downloadCertificate(course.course_id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = buildFileName(course.title);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setCertificateError(err.message || t("myCourses.certificateError"));
+    } finally {
+      setDownloadingCourseId(null);
+    }
+  }
+
   return (
     <div className="stack-lg">
       <div className="card">
@@ -49,6 +81,8 @@ export default function MyCourses() {
         </h1>
         <p className="subtitle">{t("myCourses.subtitle")}</p>
       </div>
+
+      {certificateError && <div className="card alert">{certificateError}</div>}
 
       <div className="grid-courses">
         {courses.map((course) => (
@@ -82,18 +116,34 @@ export default function MyCourses() {
                   height: 8,
                   borderRadius: 999,
                   background: "#e5e7eb",
-                  overflow: "hidden"
+                  overflow: "hidden",
                 }}
               >
                 <div
                   style={{
                     width: `${Math.min(Math.max(course.progress, 0), 100)}%`,
                     background: "#2563eb",
-                    height: "100%"
+                    height: "100%",
                   }}
                 />
               </div>
             </div>
+            {course.progress >= 100 && (
+              <div style={{ marginTop: 12 }}>
+                <button
+                  type="button"
+                  className="button"
+                  onClick={(event) => handleCertificateDownload(event, course)}
+                  onKeyDown={(event) => event.stopPropagation()}
+                  disabled={downloadingCourseId === course.course_id}
+                  style={{ width: "100%", marginTop: 8 }}
+                >
+                  {downloadingCourseId === course.course_id
+                    ? t("myCourses.certificateLoading")
+                    : t("myCourses.certificateAction")}
+                </button>
+              </div>
+            )}
           </div>
         ))}
         {!courses.length && (
