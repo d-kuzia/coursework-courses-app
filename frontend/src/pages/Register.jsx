@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../hooks/useI18n";
 
 export default function Register() {
   const { register } = useAuth();
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +17,7 @@ export default function Register() {
     setErr("");
     try {
       await register(name, email, password);
+      navigate("/profile");
     } catch (e) {
       setErr(e.message || t("auth.registerError"));
     }
