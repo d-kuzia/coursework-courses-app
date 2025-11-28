@@ -85,71 +85,69 @@ export default function MyCourses() {
       {certificateError && <div className="card alert">{certificateError}</div>}
 
       <div className="grid-courses">
-        {courses.map((course) => (
-          <div
-            key={course.enrollment_id}
-            className="card card-pressable card-link course-card"
-            onClick={() => handleCardNavigate(course.course_id)}
-            onKeyDown={(event) => handleCardKeyDown(event, course.course_id)}
-            tabIndex={0}
-          >
-            <div>
-              <p className="title" style={{ fontSize: 18, margin: 0 }}>
-                {course.title}
-              </p>
-              <p className="muted" style={{ marginTop: 6 }}>
+        {courses.map((course) => {
+          const progressValue = Math.min(Math.max(course.progress || 0, 0), 100);
+          const isCompleted = progressValue >= 100;
+          
+          return (
+            <div
+              key={course.enrollment_id}
+              className="card card-pressable card-link course-card"
+              onClick={() => handleCardNavigate(course.course_id)}
+              onKeyDown={(event) => handleCardKeyDown(event, course.course_id)}
+              tabIndex={0}
+            >
+              <h3 className="course-card-title">{course.title}</h3>
+              <p className="course-card-description">
                 {course.description || t("common.noDescription")}
               </p>
-              <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                {t("common.teacherLine", { name: course.teacher_name || "—" })}
-              </p>
-              <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                {t("common.status")}: {course.status}
-              </p>
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <div className="muted" style={{ fontSize: 13, marginBottom: 4 }}>
-                {t("common.progressLine", { value: course.progress })}
-              </div>
-              <div
-                style={{
-                  height: 8,
-                  borderRadius: 999,
-                  background: "#e5e7eb",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    width: `${Math.min(Math.max(course.progress, 0), 100)}%`,
-                    background: "#2563eb",
-                    height: "100%",
-                  }}
+              
+              {/* Progress Bar */}
+              <div className="progress-bar">
+                <div 
+                  className={`progress-bar-fill ${isCompleted ? "success" : ""}`}
+                  style={{ width: `${progressValue}%` }}
                 />
               </div>
-            </div>
-            {course.progress >= 100 && (
-              <div style={{ marginTop: 12 }}>
+
+              {/* Meta Info */}
+              <div className="course-card-meta">
+                <span className="course-card-meta-item">
+                  {course.teacher_name || "—"}
+                </span>
+                <span className="course-card-meta-item">
+                  {progressValue}%
+                </span>
+                <span className={`status-badge ${course.status?.toLowerCase()}`}>
+                  {course.status}
+                </span>
+              </div>
+
+              {/* Certificate Button */}
+              {isCompleted && (
                 <button
                   type="button"
-                  className="button"
+                  className="button button-success certificate-btn"
                   onClick={(event) => handleCertificateDownload(event, course)}
                   onKeyDown={(event) => event.stopPropagation()}
                   disabled={downloadingCourseId === course.course_id}
-                  style={{ width: "100%", marginTop: 8 }}
                 >
                   {downloadingCourseId === course.course_id
                     ? t("myCourses.certificateLoading")
                     : t("myCourses.certificateAction")}
                 </button>
-              </div>
-            )}
-          </div>
-        ))}
-        {!courses.length && (
-          <div className="card text-center muted">{t("myCourses.empty")}</div>
-        )}
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {!courses.length && (
+        <div className="card empty-state">
+          <div className="empty-state-title">{t("myCourses.empty")}</div>
+          <div className="empty-state-text">{t("myCourses.emptyHint")}</div>
+        </div>
+      )}
     </div>
   );
 }

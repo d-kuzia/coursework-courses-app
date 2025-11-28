@@ -123,41 +123,46 @@ export default function Courses() {
       {showCreate && <CourseForm submitLabel={t("courses.submitCreate")} onSubmit={handleCreate} />}
 
       <div className="grid-courses">
-        {courses.map((course) => {
-          return (
-            <div
-              key={course.id}
-              className="card card-pressable card-link course-card"
-              onClick={() => handleCardNavigate(course.id)}
-              onKeyDown={(event) => handleCardKeyDown(event, course.id)}
-              tabIndex={0}
-            >
-              <div>
-                <p className="title" style={{ fontSize: 18, margin: 0 }}>
-                  {course.title}
-                </p>
-                <p className="muted" style={{ marginTop: 6 }}>
-                  {course.description || t("common.noDescription")}
-                </p>
-                <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                  {t("common.teacherLine", { name: course.teacher_name || "—" })}
-                </p>
-                <p className="muted" style={{ marginTop: 4, fontSize: 13 }}>
-                  {t("common.modulesLessons", {
-                    modules: course.module_count ?? 0,
-                    lessons: course.lesson_count ?? 0
-                  })}
-                </p>
-              </div>
+        {courses.map((course) => (
+          <div
+            key={course.id}
+            className="card card-pressable card-link course-card"
+            onClick={() => handleCardNavigate(course.id)}
+            onKeyDown={(event) => handleCardKeyDown(event, course.id)}
+            tabIndex={0}
+          >
+            <h3 className="course-card-title">{course.title}</h3>
+            <p className="course-card-description">
+              {course.description || t("common.noDescription")}
+            </p>
+            <div className="course-card-meta">
+              <span className="course-card-meta-item">
+                {course.teacher_name || "—"}
+              </span>
+              <span className="course-card-meta-item">
+                {course.module_count ?? 0} {t("courses.modules")}
+              </span>
+              <span className="course-card-meta-item">
+                {course.lesson_count ?? 0} {t("courses.lessons")}
+              </span>
+              <span className="course-card-meta-item">
+                {course.quiz_count ?? 0} {t("courses.quizzes")}
+              </span>
             </div>
-          );
-        })}
-        {!loading && !courses.length && (
-          <div className="card text-center muted">
+          </div>
+        ))}
+      </div>
+
+      {!loading && !courses.length && (
+        <div className="card empty-state">
+          <div className="empty-state-title">
             {search ? t("courses.noSearchResults") : t("courses.empty")}
           </div>
-        )}
-      </div>
+          <div className="empty-state-text">
+            {search ? t("courses.tryAnotherSearch") : t("courses.emptyHint")}
+          </div>
+        </div>
+      )}
 
       {/* Пагінація */}
       {totalPages > 1 && (

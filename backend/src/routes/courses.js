@@ -58,7 +58,12 @@ router.get("/", async (req, res) => {
               (select count(*)
                from lessons l
                join modules m on m.id = l.module_id
-               where m.course_id = c.id) as lesson_count
+               where m.course_id = c.id) as lesson_count,
+              (select count(*)
+               from lesson_quizzes lq
+               join lessons l on l.id = lq.lesson_id
+               join modules m on m.id = l.module_id
+               where m.course_id = c.id) as quiz_count
        from courses c
        left join users u on u.id = c.teacher_id
        ${whereClause}

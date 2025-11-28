@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-do
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "./context/AuthContext";
 import { useI18n } from "./hooks/useI18n";
+import { useTheme } from "./context/ThemeContext";
 import { LANG_OPTIONS } from "./i18n/config";
 
 // сторінки
@@ -71,6 +72,7 @@ function NavBar() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { t, lang, setLang } = useI18n();
+  const { theme, toggleTheme } = useTheme();
   const languageOptions = LANG_OPTIONS;
   const safeIndex = languageOptions.findIndex((option) => option.value === lang);
   const hasOptions = languageOptions.length > 0;
@@ -131,6 +133,16 @@ function NavBar() {
       <div className="navbar-spacer" />
 
       <div className="navbar-actions">
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={toggleTheme}
+          aria-label={t("nav.theme")}
+          title={theme === "dark" ? "Light mode" : "Dark mode"}
+        >
+          {theme === "dark" ? "Light" : "Dark"}
+        </button>
+
         <button
           type="button"
           className="button button-ghost"

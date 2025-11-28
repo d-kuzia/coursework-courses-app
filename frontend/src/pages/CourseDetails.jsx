@@ -297,43 +297,36 @@ export default function CourseDetails() {
             {!enrollmentsLoading && !enrollments.length && (
               <div className="muted">{t("courseDetails.noEnrollments")}</div>
             )}
-            {enrollments.map((enrollment) => (
-              <div key={enrollment.id} className="card stack">
-                <div className="title" style={{ fontSize: 16 }}>
-                  {enrollment.name} ({enrollment.email})
+            {enrollments.map((enrollment) => {
+              const progressValue = Math.min(Math.max(enrollment.progress ?? 0, 0), 100);
+              const isCompleted = progressValue >= 100;
+              
+              return (
+                <div key={enrollment.id} className="card stack-sm">
+                  <div className="flex-between">
+                    <div>
+                      <div className="title-sm">{enrollment.name}</div>
+                      <div className="muted">{enrollment.email}</div>
+                    </div>
+                    <span className={`status-badge ${enrollment.status?.toLowerCase()}`}>
+                      {enrollment.status}
+                    </span>
+                  </div>
+                  <div className="progress-bar sm">
+                    <div 
+                      className={`progress-bar-fill ${isCompleted ? "success" : ""}`}
+                      style={{ width: `${progressValue}%` }}
+                    />
+                  </div>
+                  <div className="flex-between">
+                    <span className="muted">{enrollment.role}</span>
+                    <span className={`progress-value ${isCompleted ? "completed" : ""}`} style={{ fontSize: 14 }}>
+                      {progressValue}%
+                    </span>
+                  </div>
                 </div>
-                <div className="muted" style={{ fontSize: 13 }}>
-                  {t("courseDetails.enrollmentMeta", {
-                    role: enrollment.role,
-                    status: enrollment.status,
-                  })}
-                </div>
-                <div className="muted" style={{ fontSize: 13 }}>
-                  {t("common.progressLine", {
-                    value: enrollment.progress ?? 0,
-                  })}
-                </div>
-                <div
-                  style={{
-                    height: 6,
-                    borderRadius: 999,
-                    background: "#e5e7eb",
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${Math.min(
-                        Math.max(enrollment.progress, 0),
-                        100
-                      )}%`,
-                      background: "#2563eb",
-                      height: "100%",
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -421,15 +414,10 @@ export default function CourseDetails() {
                           <Link
                             key={lesson.id}
                             to={`/lessons/${lesson.id}`}
-                            className="card card-pressable stack"
+                            className="card card-pressable"
                           >
                             <div className="title" style={{ fontSize: 16 }}>
                               {lesson.title}
-                            </div>
-                            <div className="muted" style={{ fontSize: 13 }}>
-                              {t("courseDetails.lessonOrder", {
-                                position: lesson.position ?? 0,
-                              })}
                             </div>
                           </Link>
                         ))}
