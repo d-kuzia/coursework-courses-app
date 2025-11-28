@@ -15,6 +15,7 @@
 @import './styles/components/progress.css';
 @import './styles/components/badges.css';
 @import './styles/components/alerts.css';
+@import './styles/components/footer.css';
 
 /* Layout */
 @import './styles/layout.css';

@@ -187,6 +187,12 @@ export const translations = {
       activate: "Активувати",
       empty: "Ще немає користувачів.",
     },
+    footer: {
+      tagline: "Навчайтесь з нами",
+      github: "GitHub репозиторій",
+      docs: "Документація",
+      rights: "Всі права захищені",
+    },
   },
   en: {
     nav: {
@@ -368,6 +374,12 @@ export const translations = {
       block: "Block",
       activate: "Activate",
       empty: "No users yet.",
+    },
+    footer: {
+      tagline: "Learn with us",
+      github: "GitHub repository",
+      docs: "Docs",
+      rights: "All rights reserved",
     },
   },
 };

@@ -16,6 +16,9 @@ import MyCourses from "./pages/MyCourses.jsx";
 import CreatedCourses from "./pages/CreatedCourses.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
 
+// компоненти
+import Footer from "./components/Footer.jsx";
+
 // старі API
 import { getHealth, getDbCheck } from "./api";
 
@@ -198,6 +201,8 @@ export default function App() {
             <Route path="/admin" element={<AdminPanel />} />
           </Routes>
         </div>
+
+        <Footer />
       </div>
     </BrowserRouter>
   );
