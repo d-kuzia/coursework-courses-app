@@ -20,8 +20,32 @@ function ensureTeacherOrAdmin(user) {
 }
 
 // GET /api/courses (public)
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
   try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 9));
+    const search = (req.query.search || "").trim();
+    const offset = (page - 1) * limit;
+
+    const params = [];
+    let whereClause = "";
+    let paramIndex = 1;
+
+    if (search) {
+      params.push(`%${search}%`);
+      whereClause = `where c.title ilike $${paramIndex} or c.description ilike $${paramIndex}`;
+      paramIndex++;
+    }
+
+    // Count total
+    const countResult = await query(
+      `select count(*) as total from courses c ${whereClause}`,
+      params
+    );
+    const total = parseInt(countResult.rows[0].total, 10);
+
+    // Get paginated results
+    const queryParams = [...params, limit, offset];
     const result = await query(
       `select c.id,
               c.title,
@@ -37,9 +61,19 @@ router.get("/", async (_req, res) => {
                where m.course_id = c.id) as lesson_count
        from courses c
        left join users u on u.id = c.teacher_id
-       order by c.created_at desc`
+       ${whereClause}
+       order by c.created_at desc
+       limit $${paramIndex} offset $${paramIndex + 1}`,
+      queryParams
     );
-    res.json({ courses: result.rows });
+
+    res.json({
+      courses: result.rows,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (err) {
     console.error("courses list error", err);
     res.status(500).json({ message: "Server error" });

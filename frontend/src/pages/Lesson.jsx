@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import { getLesson, getQuiz, saveQuiz, submitQuiz } from "../api/lessons";
 import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../hooks/useI18n";
@@ -251,9 +252,9 @@ export default function Lesson() {
           </div>
         </div>
         {lesson.content && (
-          <p className="subtitle" style={{ whiteSpace: "pre-line" }}>
-            {lesson.content}
-          </p>
+          <div className="lesson-content">
+            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+          </div>
         )}
         {embedUrl && (
           <div className="video-wrapper" style={{ marginTop: 16 }}>
