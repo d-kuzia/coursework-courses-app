@@ -1,0 +1,85 @@
+/* ==================== LESSON CONTENT (Markdown) ==================== */
+.lesson-content {
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.lesson-content h1,
+.lesson-content h2,
+.lesson-content h3 {
+  color: var(--text);
+  font-weight: 800;
+  margin: 2em 0 0.6em;
+  line-height: 1.3;
+}
+
+.lesson-content h1 { font-size: 1.75em; }
+.lesson-content h2 { 
+  font-size: 1.35em;
+  padding-bottom: 0.5em;
+  border-bottom: 2px solid var(--border);
+}
+.lesson-content h3 { font-size: 1.15em; }
+
+.lesson-content p { margin: 1em 0; }
+
+.lesson-content ul,
+.lesson-content ol {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+
+.lesson-content li { margin: 0.6em 0; }
+
+.lesson-content strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.lesson-content code {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--accent);
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 0.88em;
+  box-shadow: var(--neu-pressed-sm);
+}
+
+.lesson-content pre {
+  margin: 1.5em 0;
+  padding: 22px;
+  border-radius: 18px;
+  background: #16161e;
+  overflow-x: auto;
+  box-shadow: var(--neu-pressed);
+}
+
+.lesson-content pre code {
+  background: transparent;
+  color: #e2e8f0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.lesson-content a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lesson-content a:hover {
+  text-decoration: underline;
+}
+
+.lesson-content blockquote {
+  margin: 1.5em 0;
+  padding: 18px 24px;
+  border-radius: 0 16px 16px 0;
+  border-left: 4px solid var(--accent);
+  background: var(--bg);
+  box-shadow: var(--neu-pressed-sm);
+  color: var(--text-muted);
+  font-style: italic;
+}
+

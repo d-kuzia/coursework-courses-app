@@ -1,0 +1,37 @@
+/* ==================== PROGRESS BAR ==================== */
+.progress-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--bg);
+  box-shadow: var(--neu-pressed-sm);
+  overflow: hidden;
+  padding: 2px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  box-shadow: 
+    inset 1px 1px 2px var(--accent-light),
+    inset -1px -1px 2px var(--accent-dark);
+}
+
+.progress-bar-fill.success {
+  background: var(--success);
+  box-shadow: 
+    inset 1px 1px 2px #34d399,
+    inset -1px -1px 2px var(--success-dark);
+}
+
+.progress-bar.sm {
+  height: 8px;
+  padding: 2px;
+}
+
+.progress-bar.lg {
+  height: 16px;
+  padding: 3px;
+}
+

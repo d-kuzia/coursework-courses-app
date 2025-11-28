@@ -1,0 +1,67 @@
+/* ==================== QUIZ ==================== */
+.quiz-options {
+  display: grid;
+  gap: 14px;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 16px;
+  background: var(--bg);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--neu-convex);
+  transition: all 0.15s ease;
+}
+
+.quiz-option:hover {
+  color: var(--accent);
+  box-shadow: var(--neu-pressed);
+}
+
+.quiz-option.selected {
+  box-shadow: var(--neu-pressed);
+  color: var(--success);
+}
+
+.quiz-option-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 
+    2px 2px 4px var(--shadow-dark),
+    -2px -2px 4px var(--shadow-light),
+    inset 1px 1px 2px var(--accent-light),
+    inset -1px -1px 2px var(--accent-dark);
+}
+
+.quiz-option.selected .quiz-option-marker {
+  background: var(--success);
+  box-shadow: 
+    2px 2px 4px var(--shadow-dark),
+    -2px -2px 4px var(--shadow-light),
+    inset 1px 1px 2px #34d399,
+    inset -1px -1px 2px var(--success-dark);
+}
+
+.quiz-option-text {
+  flex: 1;
+  line-height: 1.45;
+}
+

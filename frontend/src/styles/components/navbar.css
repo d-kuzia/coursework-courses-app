@@ -1,0 +1,79 @@
+/* ==================== NAVBAR ==================== */
+.navbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 22px;
+  margin-bottom: 28px;
+  border-radius: 20px;
+  background: var(--bg);
+  box-shadow: var(--neu-raised);
+}
+
+.neo-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 10px;
+}
+
+.neo-brand-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+
+.neo-brand-subtitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.navbar-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.navbar-links a {
+  padding: 11px 18px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg);
+  box-shadow: var(--neu-convex);
+  transition: all 0.15s ease;
+}
+
+.navbar-links a:hover {
+  color: var(--accent);
+  box-shadow: var(--neu-pressed-sm);
+}
+
+.navbar-links a.active {
+  color: var(--text-on-accent);
+  background: var(--accent);
+  box-shadow: 
+    inset 2px 2px 4px var(--accent-dark),
+    inset -2px -2px 4px var(--accent-light);
+}
+
+.navbar-spacer { flex: 1; }
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-auth {
+  display: flex;
+  gap: 10px;
+}
+

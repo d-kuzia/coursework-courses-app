@@ -1,0 +1,41 @@
+/* ==================== LAYOUT ==================== */
+.app-shell {
+  padding: 28px;
+}
+
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--bg);
+  box-shadow: var(--neu-raised);
+}
+
+.pagination-info {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 0 12px;
+}
+
+/* Video Wrapper */
+.video-wrapper {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--neu-raised);
+}
+
+.video-wrapper iframe {
+  display: block;
+  width: 100%;
+}
+

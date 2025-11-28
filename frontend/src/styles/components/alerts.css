@@ -1,0 +1,31 @@
+/* ==================== ALERTS ==================== */
+.alert {
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--neu-concave);
+}
+
+.alert.success {
+  color: var(--success);
+}
+
+.alert.error {
+  color: var(--error);
+}
+
+.alert-flat {
+  box-shadow: var(--neu-pressed-sm);
+}
+
+.divider {
+  height: 2px;
+  border-radius: 1px;
+  background: var(--bg);
+  box-shadow: var(--neu-pressed-sm);
+  margin: 20px 0;
+}
+
