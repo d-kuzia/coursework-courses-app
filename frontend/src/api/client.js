@@ -60,11 +60,11 @@ export async function api(path, options = {}) {
     try {
       const data = await res.clone().json();
       if (data && data.message) msg = data.message;
-    } catch (_) {
+    } catch {
       try {
         const text = await res.clone().text();
         if (text) msg = text;
-      } catch (_) {
+      } catch {
         // ignore
       }
     }
