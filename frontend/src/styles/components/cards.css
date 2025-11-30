@@ -171,6 +171,7 @@
   display: flex;
   gap: 12px;
   align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .profile-info-label {
@@ -184,6 +185,26 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--text);
+}
+
+.profile-name-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.profile-name-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.alert-sm {
+  font-size: 13px;
+  padding: 8px 12px;
+  margin-top: 4px;
 }
 
 .profile-divider {

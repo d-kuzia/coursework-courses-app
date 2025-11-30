@@ -118,4 +118,37 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
+const updateProfileSchema = z.object({
+  name: z.string().min(2).max(255)
+});
+
+// PATCH /api/auth/profile
+router.patch("/profile", auth, async (req, res) => {
+  try {
+    const parsed = updateProfileSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res
+        .status(400)
+        .json({ message: "Invalid data", issues: parsed.error.issues });
+    }
+
+    const result = await query(
+      `update users
+       set name = $1, updated_at = now()
+       where id = $2
+       returning id, email, name, role, created_at, is_active`,
+      [parsed.data.name, req.user.id]
+    );
+
+    if (!result.rowCount) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user: result.rows[0] });
+  } catch (err) {
+    console.error("profile update error", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;

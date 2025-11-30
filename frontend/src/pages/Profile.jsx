@@ -4,14 +4,19 @@ import { useI18n } from "../hooks/useI18n";
 import { getProfileStats } from "../api/enrollments";
 
 export default function Profile() {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, updateProfile } = useAuth();
   const { t } = useI18n();
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState("");
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [nameSaving, setNameSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
+      setNameValue(user.name || "");
       setStatsLoading(true);
       setStatsError("");
       getProfileStats()
@@ -27,6 +32,38 @@ export default function Profile() {
     }
   }, [user, t]);
 
+  function handleStartEditName() {
+    setEditingName(true);
+    setNameValue(user?.name || "");
+    setNameError("");
+  }
+
+  function handleCancelEditName() {
+    setEditingName(false);
+    setNameValue(user?.name || "");
+    setNameError("");
+  }
+
+  async function handleSaveName(e) {
+    e?.preventDefault();
+    if (!nameValue.trim() || nameValue.trim().length < 2) {
+      setNameError(t("profile.nameMinLength"));
+      return;
+    }
+
+    setNameError("");
+    setNameSaving(true);
+
+    try {
+      await updateProfile(nameValue.trim());
+      setEditingName(false);
+    } catch (err) {
+      setNameError(err.message || t("profile.updateError"));
+    } finally {
+      setNameSaving(false);
+    }
+  }
+
   if (loading) return <div className="card">{t("common.loading")}</div>;
   if (!user) return <div className="card">{t("profile.notAuthenticated")}</div>;
 
@@ -41,7 +78,50 @@ export default function Profile() {
               <div className="profile-info">
                 <div className="profile-info-item">
                   <span className="profile-info-label">{t("profile.name")}:</span>
-                  <span className="profile-info-value">{user.name}</span>
+                  {editingName ? (
+                    <form className="profile-name-edit" onSubmit={handleSaveName}>
+                      <input
+                        type="text"
+                        className="input"
+                        value={nameValue}
+                        onChange={(e) => setNameValue(e.target.value)}
+                        placeholder={t("profile.namePlaceholder")}
+                        disabled={nameSaving}
+                        autoFocus
+                        style={{ minWidth: "200px" }}
+                      />
+                      <div className="profile-name-actions">
+                        <button
+                          type="submit"
+                          className="button button-sm"
+                          disabled={nameSaving || !nameValue.trim()}
+                        >
+                          {nameSaving ? t("common.saving") : t("profile.saveName")}
+                        </button>
+                        <button
+                          type="button"
+                          className="button button-ghost button-sm"
+                          onClick={handleCancelEditName}
+                          disabled={nameSaving}
+                        >
+                          {t("profile.cancel")}
+                        </button>
+                      </div>
+                      {nameError && <div className="alert alert-sm">{nameError}</div>}
+                    </form>
+                  ) : (
+                    <>
+                      <span className="profile-info-value">{user.name}</span>
+                      <button
+                        type="button"
+                        className="button button-ghost button-sm"
+                        onClick={handleStartEditName}
+                        style={{ marginLeft: "12px" }}
+                      >
+                        {t("profile.editName")}
+                      </button>
+                    </>
+                  )}
                 </div>
                 <div className="profile-info-item">
                   <span className="profile-info-label">{t("profile.email")}:</span>

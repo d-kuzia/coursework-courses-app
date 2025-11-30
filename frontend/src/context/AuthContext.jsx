@@ -68,6 +68,16 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  async function updateProfile(name) {
+    setError(null);
+    const data = await api("/api/auth/profile", {
+      method: "PATCH",
+      body: JSON.stringify({ name })
+    });
+    setUser(data.user);
+    return data.user;
+  }
+
   const value = {
     user,
     loading,
@@ -75,6 +85,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    updateProfile,
     setError
   };
 
