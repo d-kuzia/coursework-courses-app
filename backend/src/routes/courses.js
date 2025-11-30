@@ -20,10 +20,40 @@ function ensureTeacherOrAdmin(user) {
 }
 
 // GET /api/courses (public)
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const result = await query(
-      `select c.id,
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit) || 12));
+    const search = (req.query.search || "").trim();
+    const offset = (page - 1) * limit;
+
+    const whereConditions = [];
+    const queryParams = [];
+    let paramIndex = 1;
+
+    if (search) {
+      const searchPattern = `%${search}%`;
+      whereConditions.push(
+        `(c.title ilike $${paramIndex} or c.description ilike $${
+          paramIndex + 1
+        })`
+      );
+      queryParams.push(searchPattern, searchPattern);
+      paramIndex += 2;
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? `where ${whereConditions.join(" and ")}`
+        : "";
+
+    // Get total count
+    const countQuery = `select count(*)::int as total from courses c ${whereClause}`;
+    const countResult = await query(countQuery, queryParams);
+    const total = countResult.rows[0]?.total || 0;
+
+    // Get paginated courses
+    const coursesQuery = `select c.id,
               c.title,
               c.description,
               c.teacher_id,
@@ -42,9 +72,22 @@ router.get("/", async (_req, res) => {
                where m.course_id = c.id) as quiz_count
        from courses c
        left join users u on u.id = c.teacher_id
-       order by c.created_at desc`
-    );
-    res.json({ courses: result.rows });
+       ${whereClause}
+       order by c.created_at desc
+       limit $${paramIndex} offset $${paramIndex + 1}`;
+
+    queryParams.push(limit, offset);
+    const result = await query(coursesQuery, queryParams);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      courses: result.rows,
+      total,
+      totalPages,
+      page,
+      limit,
+    });
   } catch (err) {
     console.error("courses list error", err);
     res.status(500).json({ message: "Server error" });
