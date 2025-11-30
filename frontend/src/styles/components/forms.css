@@ -22,7 +22,7 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  box-shadow: 
+  box-shadow:
     var(--neu-pressed),
     0 0 0 3px rgba(99, 102, 241, 0.25);
 }
@@ -95,10 +95,9 @@
 .toggle.active .toggle-knob {
   left: 29px;
   background: var(--accent);
-  box-shadow: 
+  box-shadow:
     2px 2px 4px var(--shadow-dark),
     -2px -2px 4px var(--shadow-light),
     inset 1px 1px 2px var(--accent-light),
     inset -1px -1px 2px var(--accent-dark);
 }
-
