@@ -66,7 +66,12 @@ router.get("/my-courses", auth, async (req, res) => {
               (select count(*)
                from lessons l
                join modules m on m.id = l.module_id
-               where m.course_id = c.id) as lesson_count
+               where m.course_id = c.id) as lesson_count,
+              (select count(*)
+               from lesson_quizzes lq
+               join lessons l on l.id = lq.lesson_id
+               join modules m on m.id = l.module_id
+               where m.course_id = c.id) as quiz_count
        from enrollments e
        join courses c on c.id = e.course_id
        left join users u on u.id = c.teacher_id
@@ -86,21 +91,18 @@ router.get("/profile/stats", auth, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Загальна кількість курсів
     const totalCoursesRes = await query(
       "select count(*)::int as cnt from enrollments where user_id = $1",
       [userId]
     );
     const totalCourses = totalCoursesRes.rows[0]?.cnt || 0;
 
-    // Кількість завершених курсів (progress = 100)
     const completedCoursesRes = await query(
       "select count(*)::int as cnt from enrollments where user_id = $1 and progress = 100",
       [userId]
     );
     const completedCourses = completedCoursesRes.rows[0]?.cnt || 0;
 
-    // Загальна кількість уроків в усіх курсах користувача
     const totalLessonsRes = await query(
       `select count(*)::int as cnt
        from lessons l
@@ -111,7 +113,6 @@ router.get("/profile/stats", auth, async (req, res) => {
     );
     const totalLessons = totalLessonsRes.rows[0]?.cnt || 0;
 
-    // Кількість завершених уроків
     const completedLessonsRes = await query(
       `select count(*)::int as cnt
        from lesson_progress lp
@@ -121,7 +122,6 @@ router.get("/profile/stats", auth, async (req, res) => {
     );
     const completedLessons = completedLessonsRes.rows[0]?.cnt || 0;
 
-    // Середній прогрес по всіх курсах
     const avgProgressRes = await query(
       `select coalesce(avg(progress)::int, 0) as avg_progress
        from enrollments

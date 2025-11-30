@@ -16,7 +16,6 @@ export default function Courses() {
   const [error, setError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
 
-  // Пагінація та пошук
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -92,7 +91,6 @@ export default function Courses() {
         </div>
       </div>
 
-      {/* Пошук */}
       <form className="search-bar" onSubmit={handleSearch}>
         <input
           type="text"
@@ -164,7 +162,6 @@ export default function Courses() {
         </div>
       )}
 
-      {/* Пагінація */}
       {totalPages > 1 && (
         <div className="pagination">
           <button

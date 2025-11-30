@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getUsers, updateUser } from "../api/users";
+import { getUsers, updateUser, deleteUser } from "../api/users";
 import { useI18n } from "../hooks/useI18n";
 
 const ROLE_OPTIONS = [
@@ -17,6 +17,8 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingUserId, setUpdatingUserId] = useState("");
+  const [deletingUserId, setDeletingUserId] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   useEffect(() => {
     if (!user || user.role !== "ADMIN") return;
@@ -83,6 +85,32 @@ export default function AdminPanel() {
     }
   }
 
+  function handleDeleteClick(account) {
+    setConfirmDelete(account);
+  }
+
+  function handleCancelDelete() {
+    setConfirmDelete(null);
+  }
+
+  async function handleConfirmDelete() {
+    if (!confirmDelete) return;
+
+    const accountId = confirmDelete.id;
+    setError("");
+    setDeletingUserId(accountId);
+    
+    try {
+      await deleteUser(accountId);
+      setUsers((prev) => prev.filter((item) => item.id !== accountId));
+      setConfirmDelete(null);
+    } catch (err) {
+      setError(err.message || t("admin.deleteError"));
+    } finally {
+      setDeletingUserId("");
+    }
+  }
+
   return (
     <div className="stack-lg">
       <div>
@@ -91,6 +119,32 @@ export default function AdminPanel() {
       </div>
 
       {error && <div className="alert">{error}</div>}
+      
+      {confirmDelete && (
+        <div className="card" style={{ maxWidth: "500px", margin: "0 auto" }}>
+          <div className="stack">
+            <h2 className="title-sm">{t("admin.deleteConfirm", { name: confirmDelete.name })}</h2>
+            <p className="muted">{t("admin.deleteConfirmText")}</p>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <button
+                className="button button-ghost"
+                onClick={handleCancelDelete}
+                disabled={deletingUserId === confirmDelete.id}
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                className="button button-danger"
+                onClick={handleConfirmDelete}
+                disabled={deletingUserId === confirmDelete.id}
+              >
+                {deletingUserId === confirmDelete.id ? t("common.loading") : t("admin.delete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading && <div className="card">{t("common.loading")}</div>}
 
       {!loading && (
@@ -144,15 +198,26 @@ export default function AdminPanel() {
                   {t("admin.statusLabel")}:{" "}
                   {account.is_active ? t("admin.statusActive") : t("admin.statusBlocked")}
                 </div>
-                <button
-                  className={
-                    account.is_active ? "button button-danger" : "button"
-                  }
-                  disabled={updatingUserId === account.id}
-                  onClick={() => handleToggleActive(account)}
-                >
-                  {account.is_active ? t("admin.block") : t("admin.activate")}
-                </button>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <button
+                    className={
+                      account.is_active ? "button button-danger" : "button"
+                    }
+                    disabled={updatingUserId === account.id || deletingUserId === account.id}
+                    onClick={() => handleToggleActive(account)}
+                  >
+                    {account.is_active ? t("admin.block") : t("admin.activate")}
+                  </button>
+                  {user.id !== account.id && (
+                    <button
+                      className="button button-danger"
+                      disabled={updatingUserId === account.id || deletingUserId === account.id}
+                      onClick={() => handleDeleteClick(account)}
+                    >
+                      {t("admin.delete")}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}

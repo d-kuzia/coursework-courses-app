@@ -13,7 +13,6 @@ import { useTheme } from "./context/ThemeContext";
 import { LANG_OPTIONS } from "./i18n/config";
 import { getCourses } from "./api/courses";
 
-// сторінки
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -24,7 +23,6 @@ import MyCourses from "./pages/MyCourses.jsx";
 import CreatedCourses from "./pages/CreatedCourses.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
 
-// компоненти
 import Footer from "./components/Footer.jsx";
 
 function Home() {
@@ -59,7 +57,6 @@ function Home() {
 
   return (
     <div className="stack-lg">
-      {/* Hero Section */}
       <div className="card hero-section">
         <div className="hero-content">
           <h1 className="hero-title">{t("home.heroTitle")}</h1>
@@ -82,7 +79,6 @@ function Home() {
         </div>
       </div>
 
-      {/* Latest Courses Section */}
       {loading && (
         <div className="card">
           <p className="text-center">{t("common.loading")}</p>

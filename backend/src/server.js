@@ -21,7 +21,6 @@ app.get("/", (req, res) => res.send("Server is running!"));
 
 app.get("/api/health", (req, res) => res.json({ ok: true, time: new Date() }));
 
-// тест підключення до БД
 app.get("/api/dbcheck", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");

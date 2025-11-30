@@ -7,12 +7,12 @@ const router = express.Router();
 
 const courseCreateSchema = z.object({
   title: z.string().min(1).max(255),
-  description: z.string().optional()
+  description: z.string().optional(),
 });
 
 const courseUpdateSchema = z.object({
   title: z.string().min(1).max(255).optional(),
-  description: z.string().optional()
+  description: z.string().optional(),
 });
 
 function ensureTeacherOrAdmin(user) {
@@ -34,7 +34,12 @@ router.get("/", async (_req, res) => {
               (select count(*)
                from lessons l
                join modules m on m.id = l.module_id
-               where m.course_id = c.id) as lesson_count
+               where m.course_id = c.id) as lesson_count,
+              (select count(*)
+               from lesson_quizzes lq
+               join lessons l on l.id = lq.lesson_id
+               join modules m on m.id = l.module_id
+               where m.course_id = c.id) as quiz_count
        from courses c
        left join users u on u.id = c.teacher_id
        order by c.created_at desc`

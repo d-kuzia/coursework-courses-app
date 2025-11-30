@@ -102,7 +102,6 @@ export default function MyCourses() {
                 {course.description || t("common.noDescription")}
               </p>
               
-              {/* Progress Bar */}
               <div className="progress-bar">
                 <div 
                   className={`progress-bar-fill ${isCompleted ? "success" : ""}`}
@@ -110,7 +109,6 @@ export default function MyCourses() {
                 />
               </div>
 
-              {/* Meta Info */}
               <div className="course-card-meta">
                 <span className="course-card-meta-item">
                   {course.teacher_name || "—"}
@@ -123,7 +121,6 @@ export default function MyCourses() {
                 </span>
               </div>
 
-              {/* Certificate Button */}
               {isCompleted && (
                 <button
                   type="button"

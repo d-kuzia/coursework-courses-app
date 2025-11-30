@@ -8,3 +8,8 @@ export const updateUser = (id, data) =>
     body: JSON.stringify(data)
   });
 
+export const deleteUser = (id) =>
+  api(`/api/users/${id}`, {
+    method: "DELETE"
+  });
+

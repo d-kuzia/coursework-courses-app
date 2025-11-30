@@ -10,7 +10,7 @@ const roleEnum = z.enum(["USER", "TEACHER", "ADMIN"]);
 const userUpdateSchema = z
   .object({
     role: roleEnum.optional(),
-    isActive: z.boolean().optional()
+    isActive: z.boolean().optional(),
   })
   .refine(
     (data) => data.role !== undefined || data.isActive !== undefined,
@@ -92,5 +92,31 @@ router.patch("/users/:id", async (req, res) => {
   }
 });
 
-export default router;
+// DELETE /api/users/:id
+router.delete("/users/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
 
+    if (userId === req.user.id) {
+      return res
+        .status(400)
+        .json({ message: "Cannot delete your own account" });
+    }
+
+    const existing = await query("select id, role from users where id = $1", [
+      userId,
+    ]);
+    if (!existing.rowCount) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await query("delete from users where id = $1", [userId]);
+
+    res.status(204).send();
+  } catch (err) {
+    console.error("user delete error", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+export default router;

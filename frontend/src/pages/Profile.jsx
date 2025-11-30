@@ -71,7 +71,6 @@ export default function Profile() {
     <div className="stack-lg">
       <div className="card profile-card">
         <div className="stack-lg">
-          {/* Header з інформацією про користувача */}
           <div className="profile-header">
             <div>
               <h1 className="title">{t("profile.title")}</h1>
@@ -138,10 +137,8 @@ export default function Profile() {
             </button>
           </div>
 
-          {/* Розділювач */}
           <div className="profile-divider"></div>
 
-          {/* Статистика */}
           {statsLoading && (
             <div style={{ textAlign: "center", padding: "24px 0" }}>
               <p>{t("common.loading")}</p>
