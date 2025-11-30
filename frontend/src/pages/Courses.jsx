@@ -91,6 +91,8 @@ export default function Courses() {
         </div>
       </div>
 
+      {showCreate && <CourseForm submitLabel={t("courses.submitCreate")} onSubmit={handleCreate} />}
+
       <form className="search-bar" onSubmit={handleSearch}>
         <input
           type="text"
@@ -117,8 +119,6 @@ export default function Courses() {
 
       {error && <div className="alert">{error}</div>}
       {loading && <div className="card">{t("common.loading")}</div>}
-
-      {showCreate && <CourseForm submitLabel={t("courses.submitCreate")} onSubmit={handleCreate} />}
 
       <div className="grid-courses">
         {courses.map((course) => (
