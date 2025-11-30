@@ -32,6 +32,12 @@
   gap: 24px;
 }
 
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
 .course-card {
   display: flex;
   flex-direction: column;
@@ -141,10 +147,70 @@
   font-size: 14px;
 }
 
+/* Profile Card */
+.profile-card {
+  width: 100%;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.profile-info-item {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.profile-info-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 80px;
+}
+
+.profile-info-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.profile-divider {
+  height: 2px;
+  background: var(--border);
+  margin: 8px 0;
+}
+
+.profile-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 /* Stat Card */
 .stat-card {
   text-align: center;
   padding: 24px;
+  background: var(--bg);
+  border-radius: 18px;
+  box-shadow: var(--neu-convex);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: var(--neu-floating);
+  transform: translateY(-2px);
 }
 
 .stat-value {
@@ -152,6 +218,7 @@
   font-weight: 800;
   color: var(--accent);
   line-height: 1;
+  margin-bottom: 8px;
 }
 
 .stat-label {
@@ -160,7 +227,7 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-top: 10px;
+  margin-top: 0;
 }
 
 /* Hero Section */

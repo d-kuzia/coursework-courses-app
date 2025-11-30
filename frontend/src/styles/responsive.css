@@ -46,6 +46,37 @@
   .button {
     padding: 12px 20px;
   }
+
+  .profile-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .profile-header .button {
+    width: 100%;
+  }
+
+  .profile-info-label {
+    min-width: 70px;
+    font-size: 13px;
+  }
+
+  .profile-info-value {
+    font-size: 15px;
+  }
+
+  .grid-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+  }
 }
 
 

@@ -81,6 +81,68 @@ router.get("/my-courses", auth, async (req, res) => {
   }
 });
 
+// GET /api/profile/stats
+router.get("/profile/stats", auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Загальна кількість курсів
+    const totalCoursesRes = await query(
+      "select count(*)::int as cnt from enrollments where user_id = $1",
+      [userId]
+    );
+    const totalCourses = totalCoursesRes.rows[0]?.cnt || 0;
+
+    // Кількість завершених курсів (progress = 100)
+    const completedCoursesRes = await query(
+      "select count(*)::int as cnt from enrollments where user_id = $1 and progress = 100",
+      [userId]
+    );
+    const completedCourses = completedCoursesRes.rows[0]?.cnt || 0;
+
+    // Загальна кількість уроків в усіх курсах користувача
+    const totalLessonsRes = await query(
+      `select count(*)::int as cnt
+       from lessons l
+       join modules m on m.id = l.module_id
+       join enrollments e on e.course_id = m.course_id
+       where e.user_id = $1`,
+      [userId]
+    );
+    const totalLessons = totalLessonsRes.rows[0]?.cnt || 0;
+
+    // Кількість завершених уроків
+    const completedLessonsRes = await query(
+      `select count(*)::int as cnt
+       from lesson_progress lp
+       join enrollments e on e.id = lp.enrollment_id
+       where e.user_id = $1`,
+      [userId]
+    );
+    const completedLessons = completedLessonsRes.rows[0]?.cnt || 0;
+
+    // Середній прогрес по всіх курсах
+    const avgProgressRes = await query(
+      `select coalesce(avg(progress)::int, 0) as avg_progress
+       from enrollments
+       where user_id = $1`,
+      [userId]
+    );
+    const avgProgress = avgProgressRes.rows[0]?.avg_progress || 0;
+
+    res.json({
+      totalCourses,
+      completedCourses,
+      totalLessons,
+      completedLessons,
+      avgProgress,
+    });
+  } catch (err) {
+    console.error("profile stats error", err);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+});
+
 // GET /api/courses/:id/certificate
 router.get("/courses/:id/certificate", auth, async (req, res) => {
   try {

@@ -14,3 +14,5 @@ export const downloadCertificate = (courseId) =>
   api(`/api/courses/${courseId}/certificate`, {
     responseType: "blob",
   });
+
+export const getProfileStats = () => api("/api/profile/stats");

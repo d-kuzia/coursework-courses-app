@@ -138,7 +138,7 @@ function Home() {
 
 function NavBar() {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { t, lang, setLang } = useI18n();
   const { theme, toggleTheme } = useTheme();
   const languageOptions = LANG_OPTIONS;
@@ -242,12 +242,6 @@ function NavBar() {
             <Link to="/profile" className="button button-ghost button-wide">
               {t("nav.profile")}
             </Link>
-            <button
-              className="button button-danger button-wide"
-              onClick={logout}
-            >
-              {t("nav.logout")}
-            </button>
           </div>
         )}
       </div>
